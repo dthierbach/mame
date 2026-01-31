@@ -1664,6 +1664,23 @@ if opt_tool(CPUS, "PSX") then
 end
 
 --------------------------------------------------
+-- Olivette PUCE
+--@src/devices/cpu/puce/puce.h,CPUS["PUCE"] = true
+--------------------------------------------------
+
+if CPUS["PUCE"] then
+	files {
+		MAME_DIR .. "src/devices/cpu/puce/puce.cpp",
+		MAME_DIR .. "src/devices/cpu/puce/puce.h",
+	}
+end
+
+if opt_tool(CPUS, "PUCE") then
+	table.insert(disasm_files , MAME_DIR .. "src/devices/cpu/puce/pucedasm.cpp")
+	table.insert(disasm_files , MAME_DIR .. "src/devices/cpu/puce/pucedasm.h")
+end
+
+--------------------------------------------------
 -- MIPS-X
 --@src/devices/cpu/mipsx/mipsx.h,CPUS["MIPSX"] = true
 --------------------------------------------------
