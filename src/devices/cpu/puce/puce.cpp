@@ -33,7 +33,7 @@ puce_device::puce_device(const machine_config &mconfig, const char *tag, device_
 puce_device::puce_device(const machine_config &mconfig, device_type type, const char *tag, device_t *owner, uint32_t clock) :
 	cpu_device(mconfig, type, tag, owner, clock),
 	// ..., data width, address width, addr shift
-	m_program_config("program", ENDIANNESS_BIG, 16, 16)
+	m_program_config("program", ENDIANNESS_BIG, 16, 16, -1)
 {
 }
 
@@ -43,22 +43,16 @@ void puce_device::device_start()
 	m_program = &space(AS_PROGRAM);
 
 	// register our state for the debugger
-
-	/*
-	state_add(STATE_GENFLAGS,  "GENFLAGS",  m_l).callimport().callexport().formatstr("%1s").noshow();
-	state_add(STATE_GENPC,     "PC",        m_pc.w).callimport();
-	state_add(STATE_GENPCBASE, "CURPC",     m_prvpc.w).callimport().noshow();
-	*/
+	state_add(PUCE_LVL,        "LVL",       m_lvl).mask(0x3);
 	state_add(STATE_GENPC,     "GENPC",     m_pc); // .noshow();
 	state_add(STATE_GENPCBASE, "CURPC",     m_pc); // .noshow();
 	state_add(STATE_GENFLAGS,  "GENFLAGS",  m_di).callexport().formatstr("%9s");
+	state_add(PUCE_DI,         "DI",        m_di).mask(0xf);
 	for(int r = 0; r < 16; r++) {
 		state_add(PUCE_L0 + r, string_format("L%d", r).c_str(), RL(r));
-		state_add(PUCE_A0 + r, string_format("A%d", r).c_str(), RA(r)); // .noshow()
-		state_add(PUCE_B0 + r, string_format("B%d", r).c_str(), RB(r)); // .noshow()
+		state_add(PUCE_A0 + r, string_format("A%d", r).c_str(), RA(r)).noshow();
+		state_add(PUCE_B0 + r, string_format("B%d", r).c_str(), RB(r)).noshow();
 	}
-	state_add(PUCE_DI,         "DI",        m_di).mask(0xf);
-	state_add(PUCE_LVL,        "LVL",       m_lvl).mask(0x3);
 
 	// setup regtable
 	save_item(m_lvl, "Lvl");
@@ -114,14 +108,14 @@ void puce_device::state_string_export(const device_state_entry &entry, std::stri
 		case STATE_GENFLAGS:
 		{
 			str = string_format("%c%c%c%c %c%c%c%c",
-				BIT(m_di,0)     ? 'C':'c',
-				BIT(m_di,1)     ? 'Z':'z',
-				BIT(m_di,2)     ? 'H':'h',
-				BIT(m_di,3)     ? '3':'.',
-				BIT(m_di,4)     ? '4':'.',
-				BIT(m_di,5)     ? '5':'.',
+				BIT(m_di,7)     ? '7':'.',
 				BIT(m_di,6)     ? '6':'.',
-				BIT(m_di,7)     ? '7':'.');
+				BIT(m_di,5)     ? '5':'.',
+				BIT(m_di,4)     ? '4':'.',
+				BIT(m_di,3)     ? '3':'.',
+				BIT(m_di,2)     ? 'H':'h',
+				BIT(m_di,1)     ? 'Z':'z',
+				BIT(m_di,0)     ? 'C':'c');
 		}
 		break;
 	}

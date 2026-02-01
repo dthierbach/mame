@@ -27,6 +27,9 @@ namespace {
 
 #define P6060_CPU_TAG "maincpu"
 
+#define DISPLAY_WIDTH 222
+#define DISPLAY_HEIGHT 7
+
 class p6060_state : public driver_device
 {
 public:
@@ -73,15 +76,12 @@ void p6060_state::machine_reset()
 // itmap_ind16
 uint32_t p6060_state::screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect)
 {
-	pen_t const pen = 0x10203040;
+	pen_t const pen = 0xf09090f0;
 	for (int y = 0; y < 200; y++)
 	{
-		for (int sx = 0; sx < 40; sx++)
+		for (int x = 0; x < DISPLAY_WIDTH; x++)
 		{
-			for (int x = 0; x < 8; x++)
-			{
-				bitmap.pix(y, (sx * 8) + x) = pen;
-			}
+			bitmap.pix(y, x) = pen;
 		}
 	}
 	return 0;
@@ -134,9 +134,9 @@ void p6060_state::p6060(machine_config &config)
 	// 1 MHz update freq ???
 	SCREEN(config, m_screen, SCREEN_TYPE_RASTER);
 	// pixclock, htotal, hbend, hbstart, vtotal, vbend, vbstart)
-	m_screen->set_raw(XTAL(8'000'000)/2, 320, 0, 320, 200, 0, 200);
+	m_screen->set_raw(XTAL(8'000'000)/2, DISPLAY_WIDTH, 0, DISPLAY_WIDTH, 200, 0, 200);
 	// m_screen->set_raw(1021800*14, (65*7)*2, 0, (40*7)*2, 262, 0, 192);
-	m_screen->set_color(rgb_t::green());
+	m_screen->set_color(rgb_t::amber());
 	// m_screen->set_palette(m_video);
 	m_screen->set_screen_update(FUNC(p6060_state::screen_update));
 
