@@ -11,10 +11,6 @@
 
 #pragma once
 
-// register access. are there generic defines for byte access?
-#define M_A(n) (m_l[n] & 0xff)
-#define M_A(n) (m_l[n] & 0xff)
-
 // ======================> puce_device
 
 // Used by core CPU interface
@@ -50,19 +46,16 @@ public:
 protected:
 	// construction/destruction
 	puce_device(const machine_config &mconfig, device_type type, const char *tag, device_t *owner, uint32_t clock);
-
-	// helpers
-	static u16 get_a(u16 v) { return v & 0x00ff; }
-	static u16 get_b(u16 v) { return v >> 8; }
-	static void set_a(u16 &r, u8 v) { r = (r & 0xff00) | v; }
-	static void set_b(u16 &r, u8 v) { r = (r & 0x00ff) | (v << 8); }
+	void set_pc();
+	void inc_vpc();
 
 private:
 
 	// internal processor state, in inverse size order
 
-	u16 m_l[16]; // 16 bit L, 8 bit A and B
-  u16 m_di; // flags
+	PAIR16 m_reg[16]; // 16 bit L, 8 bit A and B
+	u16 m_pc; // calculated at begin of execution
+  u8 m_di; // flags
   u8 m_lvl; // 0..3
 
 	// other internal states
@@ -82,7 +75,11 @@ enum
 	PUCE_LVL = 1,
 	PUCE_DI,
 	PUCE_L0, PUCE_L1, PUCE_L2, PUCE_L3, PUCE_L4, PUCE_L5, PUCE_L6, PUCE_L7,
-	PUCE_L8, PUCE_L9, PUCE_L10, PUCE_L11, PUCE_L12, PUCE_L13, PUCE_L14, PUCE_L15
+	PUCE_L8, PUCE_L9, PUCE_L10, PUCE_L11, PUCE_L12, PUCE_L13, PUCE_L14, PUCE_L15,
+	PUCE_A0, PUCE_A1, PUCE_A2, PUCE_A3, PUCE_A4, PUCE_A5, PUCE_A6, PUCE_A7,
+	PUCE_A8, PUCE_A9, PUCE_A10, PUCE_A11, PUCE_A12, PUCE_A13, PUCE_A14, PUCE_A15,
+	PUCE_B0, PUCE_B1, PUCE_B2, PUCE_B3, PUCE_B4, PUCE_B5, PUCE_B6, PUCE_B7,
+	PUCE_B8, PUCE_B9, PUCE_B10, PUCE_B11, PUCE_B12, PUCE_B13, PUCE_B14, PUCE_B15
 };
 
 #endif // MAME_CPU_puce_puce_H

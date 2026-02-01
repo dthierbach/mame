@@ -12,7 +12,12 @@
 #include "puce.h"
 #include "pucedasm.h"
 
-#define OP          ((op >> 011) & 07)
+#define VERBOSE (1)
+#include "logmacro.h"
+
+#define RL(n) m_reg[n].w
+#define RA(n) m_reg[n].b.l
+#define RB(n) m_reg[n].b.h
 
 DEFINE_DEVICE_TYPE(PUCE, puce_device, "puce_cpu", "Olivetti PUCE")
 
@@ -28,30 +33,39 @@ puce_device::puce_device(const machine_config &mconfig, const char *tag, device_
 puce_device::puce_device(const machine_config &mconfig, device_type type, const char *tag, device_t *owner, uint32_t clock) :
 	cpu_device(mconfig, type, tag, owner, clock),
 	// ..., data width, address width, addr shift
-	m_program_config("program", ENDIANNESS_BIG, 8, 16)
+	m_program_config("program", ENDIANNESS_BIG, 16, 16)
 {
 }
 
 void puce_device::device_start()
 {
+	LOG("%s: device_start\n", machine().describe_context());
 	m_program = &space(AS_PROGRAM);
 
 	// register our state for the debugger
 
 	/*
-	state_add(STATE_GENPC,     "GENPC",     m_pc).noshow();
-	state_add(STATE_GENPCBASE, "CURPC",     m_pc).noshow();
 	state_add(STATE_GENFLAGS,  "GENFLAGS",  m_l).callimport().callexport().formatstr("%1s").noshow();
+	state_add(STATE_GENPC,     "PC",        m_pc.w).callimport();
+	state_add(STATE_GENPCBASE, "CURPC",     m_prvpc.w).callimport().noshow();
 	*/
-	for(int r = 0; r < 16; r++)
-		state_add(PUCE_L0 + r, string_format("L%d", r).c_str(), m_l[r]);
-	state_add(PUCE_DI,         "DI",        m_di).mask(0xff);
-	state_add(PUCE_LVL,        "LVL",       m_lvl).mask(0xf);
+	state_add(STATE_GENPC,     "GENPC",     m_pc); // .noshow();
+	state_add(STATE_GENPCBASE, "CURPC",     m_pc); // .noshow();
+	state_add(STATE_GENFLAGS,  "GENFLAGS",  m_di).callexport().formatstr("%9s");
+	for(int r = 0; r < 16; r++) {
+		state_add(PUCE_L0 + r, string_format("L%d", r).c_str(), RL(r));
+		state_add(PUCE_A0 + r, string_format("A%d", r).c_str(), RA(r)); // .noshow()
+		state_add(PUCE_B0 + r, string_format("B%d", r).c_str(), RB(r)); // .noshow()
+	}
+	state_add(PUCE_DI,         "DI",        m_di).mask(0xf);
+	state_add(PUCE_LVL,        "LVL",       m_lvl).mask(0x3);
 
 	// setup regtable
-	save_item(NAME(m_lvl));
-	save_item(NAME(m_di));
-	save_item(NAME(m_l));
+	save_item(m_lvl, "Lvl");
+	save_item(m_di, "DI");
+	for(int r = 0; r < 16; r++) {
+		save_item(RL(r), string_format("L%d", r).c_str());
+	}
 
 	// set our instruction counter
 	set_icountptr(m_icount);
@@ -59,16 +73,19 @@ void puce_device::device_start()
 
 void puce_device::device_stop()
 {
+	LOG("%s: device_stop\n", machine().describe_context());
 }
 
 void puce_device::device_reset()
 {
+	LOG("%s: device_reset\n", machine().describe_context());
 	// Not sure if registers actually reset...
-	memset(m_l, 0, sizeof(m_l));
+	memset(m_reg, 0, sizeof(m_reg));
 	m_di = 0;
 	// Start with Lvl3 at 0x8000
 	m_lvl = 3;
-	m_l[1] = 0x8000;
+	RL(1) = 0x8000;
+	set_pc();
 }
 
 
@@ -92,6 +109,22 @@ device_memory_interface::space_config_vector puce_device::memory_space_config() 
 
 void puce_device::state_string_export(const device_state_entry &entry, std::string &str) const
 {
+	switch (entry.index())
+	{
+		case STATE_GENFLAGS:
+		{
+			str = string_format("%c%c%c%c %c%c%c%c",
+				BIT(m_di,0)     ? 'C':'c',
+				BIT(m_di,1)     ? 'Z':'z',
+				BIT(m_di,2)     ? 'H':'h',
+				BIT(m_di,3)     ? '3':'.',
+				BIT(m_di,4)     ? '4':'.',
+				BIT(m_di,5)     ? '5':'.',
+				BIT(m_di,6)     ? '6':'.',
+				BIT(m_di,7)     ? '7':'.');
+		}
+		break;
+	}
 }
 
 
@@ -148,43 +181,50 @@ void puce_device::execute_set_input(int inputnum, int state)
 //  opcodes
 //-------------------------------------------------
 
+void puce_device::set_pc() {
+		switch (m_lvl) {
+		case 4:
+			m_pc = RL(0);
+			break;
+		case 3:
+			m_pc = RL(1);
+			break;
+		case 2:
+			m_pc = 0x8200 | RA(12);
+			break;
+		case 1:
+			m_pc = 0x8100 | RA(13);
+			break;
+		}
+}
+
+void puce_device::inc_vpc() {
+		switch (m_lvl) {
+		case 4:
+			RL(0)++;
+			break;
+		case 3:
+			RL(1)++;
+			break;
+		case 2:
+			RA(12)++;
+			break;
+		case 1:
+			RB(13)++;
+			break;
+		}
+}
+
 void puce_device::execute_run()
 {
 	while (m_icount > 0)
 	{
-		u16 pc;
-		switch (m_lvl) {
-		case 4:
-			pc = m_l[0];
-			break;
-		case 3:
-			pc = m_l[1];
-			break;
-		case 2:
-			pc = 0x8200 | get_a(m_l[12]);
-			break;
-		case 1:
-			pc = 0x8100 | get_a(m_l[13]);
-			break;
-		}
-
-		debugger_instruction_hook(pc);
+		set_pc();
+		LOG("%s: device_exec lvl=%i pc=%04x\n", machine().describe_context(), m_lvl, m_pc);
+		debugger_instruction_hook(m_pc);
 		// everything is a nop for now
 
 		--m_icount;
-		switch (m_lvl) {
-		case 4:
-			m_l[0] = (m_l[0] + 1) & 0xffff;
-			break;
-		case 3:
-			m_l[1] = (m_l[1] + 1) & 0xffff;
-			break;
-		case 2:
-			set_a(m_l[12], (m_l[12] + 1) & 0xff);
-			break;
-		case 1:
-			set_a(m_l[13], (m_l[13] + 1) & 0xff);
-			break;
-		}
+		inc_vpc();
 	}
 }

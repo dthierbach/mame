@@ -93,7 +93,12 @@ uint32_t p6060_state::screen_update(screen_device &screen, bitmap_rgb32 &bitmap,
 
 void p6060_state::mem_map(address_map &map)
 {
-	map(0x0000, 0xffff).ram();
+	// TODO: Add byte access delegate to shift address for lower half.
+	map(0x0000, 0x7fff).ram();
+	map(0x8000, 0x87ff).rom().region("bootrom", 0);
+	map(0x8800, 0x9fff).unmaprw();
+	map(0xa000, 0xbfff).ram();
+	map(0xc000, 0xffff).unmaprw();
 }
 
 //**************************************************************************
@@ -150,11 +155,8 @@ void p6060_state::p6060(machine_config &config)
 //**************************************************************************
 
 ROM_START( p6060 )
-	ROM_REGION( 0x400, "miot0", 0 )
-	ROM_LOAD("6530-002.u2", 0x0000, 0x0400, CRC(2b08e923) SHA1(054f7f6989af3a59462ffb0372b6f56f307b5362))
-
-	ROM_REGION( 0x400, "miot1", 0 )
-	ROM_LOAD("6530-003.u3", 0x0000, 0x0400, CRC(a2a56502) SHA1(60b6e48f35fe4899e29166641bac3e81e3b9d220))
+	ROM_REGION16_BE(0x0800*2, "bootrom", 0)
+	ROM_LOAD("romca.bin", 0x0000, 0x0800*2, CRC(9caca305) SHA1(63a68b4787f33bef156f05c6b50269357d0d3c2f))
 ROM_END
 
 } // anonymous namespace
