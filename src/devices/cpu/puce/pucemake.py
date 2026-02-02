@@ -78,10 +78,8 @@ inner = {
     0xB3: {0xF: ['sdib',  'SDIB B%02x',        'u',   'B%d <-> DI',               'u']},	# DI set
     0xB4: {0x2: ['eco',   'ECO M%02x',         'u',   'cmd <- [M%d]',             'u']},	# no DI
     0xB6: {'*': ['sot',   'SOT A%02x,B%02x',   'uv',  'A%d - B%d + DI0',          'uv']},	# DI0,1,2 = CZH
-    0xB7: {'*': ['andb',  'ANDB',  'A', 'B', '{argy} := {argx} and {argy}']}
-#   DI1 = zero
-    0xB8: {0x
-# opcode[0xB8]={'8': ['EDA',   'A', '',  '{argx} <- data.B']}
+    0xB7: {'*': ['andb',  'ANDB A%02x,B%02x',  'uv',  'B%d := A%d and B%d',       'vuv']},	# DI1 = zero
+    0xB8: {0x8: ['eda',   'EDA',   'A', '',  '{argx} <- data.B']}
 #  no DI
     0xB9: {0x
 # opcode[0xB9]={'0': ['ENUA',  'A', '',  '{argx} <- name']}

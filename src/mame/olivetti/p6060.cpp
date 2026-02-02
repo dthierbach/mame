@@ -10,7 +10,6 @@ Olivetti P6060
 
 #include "cpu/puce/puce.h"
 #include "machine/timer.h"
-#include "video/pwm.h"
 
 #include "screen.h"
 #include "softlist_dev.h"
@@ -37,9 +36,7 @@ public:
 		: driver_device(mconfig, type, tag)
 		, m_maincpu(*this, P6060_CPU_TAG)
 		, m_screen(*this, "screen")
-		, m_digit_pwm(*this, "digit_pwm")
 		, m_buttons(*this, "BUTTONS")
-		, m_lamps(*this, "lamp%u", 0U)
 	{ }
 
 	DECLARE_INPUT_CHANGED_MEMBER(trigger_reset);
@@ -55,16 +52,14 @@ protected:
 private:
 	required_device<puce_device> m_maincpu;
 	required_device<screen_device> m_screen;
-	required_device<pwm_display_device> m_digit_pwm;
 	required_ioport m_buttons;
-	output_finder<12> m_lamps;
 
 	void mem_map(address_map &map) ATTR_COLD;
 };
 
 void p6060_state::machine_start()
 {
-	m_lamps.resolve();
+	// m_lamps.resolve();
 	/*
 	m_lamps[0] = 0;
 	m_lamps[1] = 1;
@@ -158,10 +153,8 @@ void p6060_state::p6060(machine_config &config)
 	// m_screen->set_palette(m_video);
 	m_screen->set_screen_update(FUNC(p6060_state::screen_update));
 
-
 	// video hardware
-	PWM_DISPLAY(config, m_digit_pwm).set_size(6, 7);
-	m_digit_pwm->set_segmask(0x3f, 0x7f);
+
 	config.set_default_layout(layout_p6060);
 
 	SPEAKER(config, "mono").front_center();

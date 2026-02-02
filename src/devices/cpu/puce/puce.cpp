@@ -47,7 +47,7 @@ void puce_device::device_start()
 	state_add(STATE_GENPC,     "GENPC",     m_pc); // .noshow();
 	state_add(STATE_GENPCBASE, "CURPC",     m_pc); // .noshow();
 	state_add(STATE_GENFLAGS,  "GENFLAGS",  m_di).callexport().formatstr("%9s");
-	state_add(PUCE_DI,         "DI",        m_di).mask(0xf);
+	state_add(PUCE_DI,         "DI",        m_di);
 	for(int r = 0; r < 16; r++) {
 		state_add(PUCE_L0 + r, string_format("L%d", r).c_str(), RL(r));
 		state_add(PUCE_A0 + r, string_format("A%d", r).c_str(), RA(r)).noshow();
