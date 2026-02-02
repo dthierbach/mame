@@ -16,6 +16,9 @@ protected:
 	virtual u32 opcode_alignment() const override;
 	virtual offs_t disassemble(std::ostream &stream, offs_t pc, const data_buffer &opcodes, const data_buffer &params) override;
 
+private:
+  void decode(std::ostream &stream, u16 pc, u16 opcode);
+
 };
 
 #endif // MAME_CPU_PUCE_PUCEDASM_H

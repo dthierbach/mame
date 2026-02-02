@@ -79,7 +79,7 @@ void puce_device::device_reset()
 	// Start with Lvl3 at 0x8000
 	m_lvl = 3;
 	RL(1) = 0x8000;
-	set_pc();
+	get_vpc();
 }
 
 
@@ -175,7 +175,7 @@ void puce_device::execute_set_input(int inputnum, int state)
 //  opcodes
 //-------------------------------------------------
 
-void puce_device::set_pc() {
+void puce_device::get_vpc() {
 		switch (m_lvl) {
 		case 4:
 			m_pc = RL(0);
@@ -188,6 +188,23 @@ void puce_device::set_pc() {
 			break;
 		case 1:
 			m_pc = 0x8100 | RA(13);
+			break;
+		}
+}
+
+void puce_device::set_vpc_a(u16 a) {
+		switch (m_lvl) {
+		case 4:
+		  RA(0) = a;
+			break;
+		case 3:
+			RA(1) = a;
+			break;
+		case 2:
+			RA(12) = a;
+			break;
+		case 1:
+			RA(13) = a;
 			break;
 		}
 }
@@ -213,12 +230,149 @@ void puce_device::execute_run()
 {
 	while (m_icount > 0)
 	{
-		set_pc();
+		get_vpc();
 		LOG("%s: device_exec lvl=%i pc=%04x\n", machine().describe_context(), m_lvl, m_pc);
 		debugger_instruction_hook(m_pc);
 		// everything is a nop for now
 
 		--m_icount;
 		inc_vpc();
+	}
+}
+
+inline void puce_device::op_sai(u16 j) {
+		switch (m_lvl) {
+		case 4:
+		  RL(0) = (RL(0) & 0xe000) | (j & 0x1fff);
+			break;
+		case 3:
+		  RL(1) = (RL(1) & 0xe000) | (j & 0x1fff);
+			break;
+		case 2:
+			RA(12) = j & 0xff;
+			break;
+		case 1:
+			RA(13) = j & 0xff;
+			break;
+		}
+}
+
+inline void puce_device::op_amd(u8 s, u8 t) {
+}
+
+inline void puce_device::op_mad(u8 s, u8 t) {
+}
+
+inline void puce_device::op_sade(u16 b) {
+	if (1 == 0) { // ECOF...
+		set_vpc_a(b);
+	}
+}
+
+inline void puce_device::op_sadx(u8 e, u8 d, u16 b) {
+	if (BIT(m_di, d) == e) {
+		set_vpc_a(b);
+	}
+}
+
+inline void puce_device::op_crta(u8 s, u8 t) {
+	RA(s) = t;
+}
+
+inline void puce_device::op_crtb(u8 s, u8 t) {
+	RB(s) = t;
+}
+
+inline void puce_device::op_comx(u8 u) {
+	switch(u) {
+		case 0: m_lvl = 4; break;
+		case 1: m_lvl = 3; break;
+	}
+}
+
+inline void puce_device::op_tba(u8 u, u8 v) {
+	RA(u) = RB(v);
+}
+
+inline void puce_device::op_illegal(u16 opcode) {
+	// log
+	logerror("Illegal opcode");
+}
+
+// copy and paste from pucemake.py
+inline void puce_device::decode(u16 pc, u16 opcode)
+{
+	u8 r = BIT(opcode, 12, 4);
+	u8 s = BIT(opcode, 8, 4);
+	u8 t = BIT(opcode, 0, 8);
+	switch (r)
+	{
+	case 0:
+	case 1:
+	{
+		u16 j = (pc & 0xe000) | (opcode & 0x1fff);
+		op_sai(j);
+		break;
+	}
+	case 2:
+	{
+		op_amd(s, t);
+		break;
+	}
+	case 3:
+	{
+		op_mad(s, t);
+		break;
+	}
+	case 4:
+	{
+		u16 b = (pc & 0xff00) | t;
+		op_sade(b);
+		break;
+	}
+	case 5:
+	{
+		op_crtb(s, t);
+		break;
+	}
+	case 6:
+	{
+		u8 e = BIT(r, 0);
+		u8 d = BIT(r, 1, 3);
+		u16 b = (pc & 0xff00) | t;
+		op_sadx(e, d, b);
+		break;
+	}
+	case 7:
+	{
+		op_crta(s, t);
+		break;
+	}
+	default:
+		u8 u = BIT(opcode, 4, 4);
+		u8 v = BIT(opcode, 0, 4);
+		u8 w = BIT(opcode, 8, 8);
+		switch (w)
+		{
+		case 0xbd:
+			switch (v)
+			{
+			case 0x0:
+			{
+				op_comx(u);
+				break;
+			}
+			default:
+				op_illegal(opcode);
+				break;
+			}
+		case 0xe9:
+		{
+			op_tba(u, v);
+			break;
+		}
+		default:
+			op_illegal(opcode);
+		}
 	}
 }

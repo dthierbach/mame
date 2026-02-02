@@ -46,7 +46,8 @@ public:
 protected:
 	// construction/destruction
 	puce_device(const machine_config &mconfig, device_type type, const char *tag, device_t *owner, uint32_t clock);
-	void set_pc();
+	void set_vpc_a(u16 a);
+	void get_vpc();
 	void inc_vpc();
 
 private:
@@ -63,6 +64,21 @@ private:
 
 	// address spaces
 	address_space *m_program;
+
+	void op_sai(u16 j);
+  void op_amd(u8 s, u8 t);
+  void op_mad(u8 s, u8 t);
+  void op_sade(u16 b);
+  void op_sadx(u8 e, u8 d, u16 b);
+  void op_crta(u8 s, u8 t);
+  void op_crtb(u8 s, u8 t);
+
+	void op_comx(u8 u);
+	void op_tba(u8 u, u8 v);
+
+	void op_illegal(u16 opcode);
+	void decode(u16 pc, u16 opcode);
+
 };
 
 // device type definition

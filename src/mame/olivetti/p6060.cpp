@@ -38,7 +38,8 @@ public:
 		, m_maincpu(*this, P6060_CPU_TAG)
 		, m_screen(*this, "screen")
 		, m_digit_pwm(*this, "digit_pwm")
-		, m_lights(*this, "LIGHTS")
+		, m_buttons(*this, "BUTTONS")
+		, m_lamps(*this, "lamp%u", 0U)
 	{ }
 
 	DECLARE_INPUT_CHANGED_MEMBER(trigger_reset);
@@ -55,13 +56,30 @@ private:
 	required_device<puce_device> m_maincpu;
 	required_device<screen_device> m_screen;
 	required_device<pwm_display_device> m_digit_pwm;
-	required_ioport m_lights;
+	required_ioport m_buttons;
+	output_finder<12> m_lamps;
 
 	void mem_map(address_map &map) ATTR_COLD;
 };
 
 void p6060_state::machine_start()
 {
+	m_lamps.resolve();
+	/*
+	m_lamps[0] = 0;
+	m_lamps[1] = 1;
+	m_lamps[2] = 0;
+	m_lamps[3] = 1;
+	m_lamps[4] = 0;
+	m_lamps[5] = 1;
+	m_lamps[6] = 0;
+	m_lamps[7] = 1;
+	m_lamps[8] = 0;
+	m_lamps[9] = 1;
+	m_lamps[10] = 0;
+	m_lamps[11] = 1;
+	m_lamps[12] = 0;
+	*/
 	// Register for save states
 }
 
@@ -77,7 +95,7 @@ void p6060_state::machine_reset()
 uint32_t p6060_state::screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect)
 {
 	pen_t const pen = 0xf09090f0;
-	for (int y = 0; y < 200; y++)
+	for (int y = 0; y < DISPLAY_HEIGHT; y++)
 	{
 		for (int x = 0; x < DISPLAY_WIDTH; x++)
 		{
@@ -106,7 +124,7 @@ void p6060_state::mem_map(address_map &map)
 //**************************************************************************
 
 static INPUT_PORTS_START( p6060 )
-	PORT_START("LIGHTS")
+	PORT_START("BUTTONS")
 	PORT_BIT( 0x001, IP_ACTIVE_LOW, IPT_KEYBOARD ) PORT_NAME("NoPrint")
 	PORT_BIT( 0x002, IP_ACTIVE_LOW, IPT_KEYBOARD ) PORT_NAME("PrintAll")
 	PORT_BIT( 0x004, IP_ACTIVE_LOW, IPT_KEYBOARD ) PORT_NAME("Step")
@@ -134,7 +152,7 @@ void p6060_state::p6060(machine_config &config)
 	// 1 MHz update freq ???
 	SCREEN(config, m_screen, SCREEN_TYPE_RASTER);
 	// pixclock, htotal, hbend, hbstart, vtotal, vbend, vbstart)
-	m_screen->set_raw(XTAL(8'000'000)/2, DISPLAY_WIDTH, 0, DISPLAY_WIDTH, 200, 0, 200);
+	m_screen->set_raw(XTAL(8'000'000)/2, DISPLAY_WIDTH, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, 0, DISPLAY_HEIGHT);
 	// m_screen->set_raw(1021800*14, (65*7)*2, 0, (40*7)*2, 262, 0, 192);
 	m_screen->set_color(rgb_t::amber());
 	// m_screen->set_palette(m_video);
