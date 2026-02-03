@@ -179,3 +179,71 @@ ROM_END
 
 //    YEAR  NAME   PARENT  COMPAT  MACHINE  INPUT  CLASS        INIT        COMPANY      FULLNAME  FLAGS
 COMP( 1975, p6060, 0,      0,      p6060,   p6060,  p6060_state, empty_init, "Olivetti", "P6060",  MACHINE_SUPPORTS_SAVE)
+
+/*
+
+p6060bus:
+
+EXT external bus
+
+prio enum
+  1 L1
+	2 L2
+	3 L3A
+	4 L3B
+
+state
+  select controller
+	from peri: data 8, name 8, type 8
+	to peri: data/cmd 16
+
+## CPU > Peri
+
+reset
+  all controllers
+
+select
+  all controllers in order
+	stop at first
+	save which
+
+## CPU > selected peri:
+# use signal line abstraction?
+
+
+finish
+
+data without ECOT
+
+data with ECOT
+
+command
+
+EC1F
+EC2F
+
+## peri > CPU
+
+store 
+
+## Interrupt
+
+intr_finish
+  COM0 from CPU
+	check queues in order
+	found:
+	   remove from queue
+      grant
+
+intr_request(prio)
+  check CPU level
+	if available, grant
+	otherwise queue (for simplicity)
+
+intr_grant(prio)
+  set CPU level
+  callback card
+
+ECM1,2,3  CPU request irq ???
+
+*/
