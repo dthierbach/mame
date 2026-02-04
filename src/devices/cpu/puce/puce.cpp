@@ -262,6 +262,7 @@ void puce_device::op_illegal(u16 opcode) {
 	logerror("Illegal opcode pc=%04x\n", m_pc);
 }
 
+// --------
 
 inline void puce_device::op_sai(u16 j) {
   //jump %04x
@@ -282,16 +283,16 @@ inline void puce_device::op_sai(u16 j) {
 	}
 }
 
-inline void puce_device::op_amd(u8 s,u8 t) {
+inline void puce_device::op_amd(u8 s, u8 t) {
   //[%02x] := A%d
   //no DI
-  op_illegal(NULL);
+	m_data->write_byte(t, s);
 }
 
-inline void puce_device::op_mad(u8 s,u8 t) {
+inline void puce_device::op_mad(u8 s, u8 t) {
   //A%d := [%02x]
   //no DI
-  op_illegal(NULL);
+	RA(s) = m_data->read_byte(t);
 }
 
 inline void puce_device::op_sade(u8 k) {
@@ -306,63 +307,351 @@ inline void puce_device::op_sadx(u8 e, u8 d, u8 k) {
   op_illegal(NULL);
 }
 
-inline void puce_device::op_crta(u8 s,u8 t) {
+inline void puce_device::op_crta(u8 s, u8 t) {
   //A%d := 0x%02x
   //no DI
-  op_illegal(NULL);
+	RA(s) = t;
 }
 
-inline void puce_device::op_crtb(u8 s,u8 t) {
+inline void puce_device::op_crtb(u8 s, u8 t) {
   //B%d := 0x%02x
   //no DI
-  op_illegal(NULL);
+	RB(s) = t;
 }
 
-inline void puce_device::op_amim(u8 u,u8 v) {
+// --------
+
+inline void puce_device::op_ami(u8 u, u8 v) {
+  //[M%d] := A%d
+  //no DI
+	if (u <= 12) {
+		m_data->write_byte(RL(u), RA(v));
+	} else {
+		m_data->write_byte(RA(u), RA(v));
+	}
+}
+
+inline void puce_device::op_amim(u8 u, u8 v) {
   //[M%d--] := A%d
-  //no DI        
+  //no DI
+	if (u <= 12) {
+		m_data->write_byte(RL(u), RA(v));
+		RL(u)--;
+	} else {
+		m_data->write_byte(RA(u), RA(v));
+		RA(u)--;
+	}
+}
+
+inline void puce_device::op_amip(u8 u, u8 v) {
+  //[M%d++] := A%d
+  //no DI
+	if (u <= 12) {
+		m_data->write_byte(RL(u), RA(v));
+		RL(u)++;
+	} else {
+		m_data->write_byte(RA(u), RA(v));
+		RA(u)++;
+	}
+}
+
+inline void puce_device::op_bmi(u8 u, u8 v) {
+  //[M%d] := B%d
+  //no DI
+	if (u <= 12) {
+		m_data->write_byte(RL(u), RB(v));
+	} else {
+		m_data->write_byte(RA(u), RB(v));
+	}
+}
+
+inline void puce_device::op_bmim(u8 u, u8 v) {
+  //[M%d--] := B%d
+  //no DI
+	if (u <= 12) {
+		m_data->write_byte(RL(u), RB(v));
+		RL(u)--;
+	} else {
+		m_data->write_byte(RA(u), RB(v));
+		RA(u)--;
+	}
+}
+
+inline void puce_device::op_bmip(u8 u, u8 v) {
+  //[M%d++] := B%d
+  //no DI
+	if (u <= 12) {
+		m_data->write_byte(RL(u), RB(v));
+		RL(u)++;
+	} else {
+		m_data->write_byte(RA(u), RB(v));
+		RA(u)++;
+	}
+}
+
+inline void puce_device::op_lmi(u8 u, u8 v) {
+  //[M%d}] := L%d
+  //no DI
+	if (u <= 12) {
+		m_data->write_word(RL(u), RL(v));
+	} else {
+		m_data->write_word(RA(u), RL(v));
+	}
+}
+
+inline void puce_device::op_lmim(u8 u, u8 v) {
+  //[M%d--] := L%d
+  //no DI
+	if (u <= 12) {
+		m_data->write_word(RL(u), RL(v));
+		RL(u)--;
+	} else {
+		m_data->write_word(RA(u), RL(v));
+		RA(u)--;
+	}
+}
+
+inline void puce_device::op_lmip(u8 u, u8 v) {
+  //[M%d++] := L%d
+  //no DI
+	if (u <= 12) {
+		m_data->write_word(RL(u), RL(v));
+		RL(u)++;
+	} else {
+		m_data->write_word(RA(u), RL(v));
+		RA(u)++;
+	}
+}
+
+inline void puce_device::op_lpmip(u8 u, u8 v) {
+  //[M%d++] := ++L%d
+  //no DI
+	RL(v)++;
+	if (u <= 12) {
+		m_data->write_word(RL(u), RL(v));
+		RL(u)++;
+	} else {
+		m_data->write_word(RA(u), RL(v));
+		RA(u)++;
+	}
+}
+
+inline void puce_device::op_mai(u8 u, u8 v) {
+  //A%d := [M%d]
+  //no DI
+	if (u <= 12) {
+		RA(v) = m_data->read_byte(RL(u));
+	} else {
+		RA(v) = m_data->read_byte(RA(u));
+	}
+}
+
+inline void puce_device::op_maim(u8 u, u8 v) {
+  //A%d := [M%d--]
+  //no DI
+	if (u <= 12) {
+		RA(v) = m_data->read_byte(RL(u));
+		RL(u)--;
+	} else {
+		RA(v) = m_data->read_byte(RA(u));
+		RA(u)--;
+	}
+}
+
+inline void puce_device::op_maip(u8 u, u8 v) {
+  //A%d := [M%d++]
+  //no DI
+	if (u <= 12) {
+		RA(v) = m_data->read_byte(RL(u));
+		RL(u)++;
+	} else {
+		RA(v) = m_data->read_byte(RA(u));
+		RA(u)++;
+	}
+}
+
+inline void puce_device::op_mbi(u8 u, u8 v) {
+  //B%d := [M%d]
+  //no DI
+	if (u <= 12) {
+		RB(v) = m_data->read_byte(RL(u));
+	} else {
+		RB(v) = m_data->read_byte(RA(u));
+	}
+}
+
+inline void puce_device::op_mbim(u8 u, u8 v) {
+  //B%d := [M%d--]
+  //no DI
+	if (u <= 12) {
+		RB(v) = m_data->read_byte(RL(u));
+		RL(u)--;
+	} else {
+		RB(v) = m_data->read_byte(RA(u));
+		RA(u)--;
+	}
+}
+
+inline void puce_device::op_mbip(u8 u, u8 v) {
+  //B%d := [M%d++]
+  //no DI
+	if (u <= 12) {
+		RB(v) = m_data->read_byte(RL(u));
+		RL(u)++;
+	} else {
+		RB(v) = m_data->read_byte(RA(u));
+		RA(u)++;
+	}
+}
+
+inline void puce_device::op_mli(u8 u, u8 v) {
+  //L%d := [M%d]
+  //no DI
+	if (u <= 12) {
+		RL(v) = m_data->read_word(RL(u));
+	} else {
+		RL(v) = m_data->read_byte(RA(u));
+	}
   op_illegal(NULL);
 }
 
-inline void puce_device::op_tadi(u8 u) {
-  //DI := A%d
-  //DI set       
+inline void puce_device::op_mlim(u8 u, u8 v) {
+  //L%d := [M%d--]
+  //no DI
+	if (u <= 12) {
+		RL(v) = m_data->read_word(RL(u));
+		RL(u)--;
+	} else {
+		RL(v) = m_data->read_byte(RA(u));
+		RA(u)--;
+	}
   op_illegal(NULL);
+}
+
+inline void puce_device::op_mlip(u8 u, u8 v) {
+  //L%d := [M%d++]
+  //no DI
+	if (u <= 12) {
+		RL(v) = m_data->read_word(RL(u));
+		RL(u)++;
+	} else {
+		RL(v) = m_data->read_byte(RA(u));
+		RA(u)++;
+	}
 }
 
 inline void puce_device::op_ica(u8 u) {
   //A%d++
-  //no DI        
+  //no DI
+	RA(u)++;
+}
+
+inline void puce_device::op_icb(u8 u) {
+  //B%d++
+  //no DI
+	RB(u)++;
+}
+
+inline void puce_device::op_icd(u8 g, u8 f, u8 v) {
+  //L%d++ if D%x={%d}
+  //no DI
+	if (BIT(m_di,f) == g) {
+		RL(v)++;
+	}
+}
+
+inline void puce_device::op_icl(u8 u) {
+  //L%d++
+  //no DI
+	RL(u)++;
+}
+
+inline void puce_device::op_sab(u8 u, u8 v) {
+  //A%d <-> B%d
+  //no DI
+	u8 tmp = RA(u); RA(u) = RB(v); RB(v) = tmp;
+}
+
+
+inline void puce_device::op_sdia(u8 u) {
+  //A%d <-> DI
+  //no DI
+	u8 tmp = m_di; m_di = RA(u); RA(u) = tmp;
+}
+
+inline void puce_device::op_tadi(u8 u) {
+  //DI := A%d
+  //DI set
+	m_di = RA(u);
+}
+
+inline void puce_device::op_tbdi(u8 u) {
+  //DI := B%d
+  //DI set
+	m_di = RB(u);
+}
+
+inline void puce_device::op_tdia(u8 u) {
+  //A%d := DI
+  //no DI
+  RA(u) = m_di;
+}
+
+inline void puce_device::op_tdib(u8 u) {
+  //B%d := DI
+  //no DI
+  RB(u) = m_di;
+}
+
+inline void puce_device::op_tab(u8 u, u8 v) {
+  //B%d := A%d
+  //no DI
+	RB(v) = RA(u);
+}
+
+inline void puce_device::op_tabp(u8 u, u8 v) {
+  //B%d.P := A%d.P
+  //no DI
   op_illegal(NULL);
 }
 
-inline void puce_device::op_add(u8 u,u8 v) {
+
+
+// -------- not implemented
+
+inline void puce_device::op_add(u8 u, u8 v) {
   //A%d + B%d + DI0
   //DI0,1,2 = CZH
   op_illegal(NULL);
 }
 
-inline void puce_device::op_orb(u8 u,u8 v) {
-  //B%d := A%d or B%d
+inline void puce_device::op_adda(u8 u, u8 v) {
+  //A%d := A%d + B%d + DI0
+  //DI0,1,2 = CZH
+  op_illegal(NULL);
+}
+
+inline void puce_device::op_addb(u8 u, u8 v) {
+  //B%d := A%d + B%d + DI0
+  //DI0,1,2 = CZH
+  op_illegal(NULL);
+}
+
+inline void puce_device::op_anda(u8 u, u8 v) {
+  //A%d := A%d and B%d
   //DI1 = zero   
   op_illegal(NULL);
 }
 
-inline void puce_device::op_amip(u8 u,u8 v) {
-  //[M%d++] := A%d
-  //no DI        
+inline void puce_device::op_and(u8 u, u8 v) {
+  //A%d and B%d
+  //DI1 = zero   
   op_illegal(NULL);
 }
 
-inline void puce_device::op_bmi(u8 u,u8 v) {
-  //[M%d] := B%d
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_bmim(u8 u,u8 v) {
-  //[M%d--] := B%d
-  //no DI        
+inline void puce_device::op_orb(u8 u, u8 v) {
+  //B%d := A%d or B%d
+  //DI1 = zero   
   op_illegal(NULL);
 }
 
@@ -372,8 +661,8 @@ inline void puce_device::op_rota(u8 u) {
   op_illegal(NULL);
 }
 
-inline void puce_device::op_bmip(u8 u,u8 v) {
-  //[M%d++] := B%d
+inline void puce_device::op_rotb(u8 u) {
+  //B%d.M <-> B%d.P
   //no DI        
   op_illegal(NULL);
 }
@@ -390,27 +679,15 @@ inline void puce_device::op_vra(u8 u) {
   op_illegal(NULL);
 }
 
+inline void puce_device::op_vrb(u8 u) {
+  //B%d==0
+  //DI1 = zero   
+  op_illegal(NULL);
+}
+
 inline void puce_device::op_mei(u8 u) {
   //data.A <- [M%d]
   //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_mai(u8 u,u8 v) {
-  //A%d := [M%d]
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_main(u8 u,u8 v) {
-  //A%d := [M%d--]
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_tbdi(u8 u) {
-  //DI := B%d
-  //DI set       
   op_illegal(NULL);
 }
 
@@ -420,68 +697,8 @@ inline void puce_device::op_meip(u8 u) {
   op_illegal(NULL);
 }
 
-inline void puce_device::op_icb(u8 u) {
-  //B%d++
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_adda(u8 u,u8 v) {
-  //A%d := A%d + B%d + DI0
-  //DI0,1,2 = CZH
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_and(u8 u,u8 v) {
-  //A%d and B%d
-  //DI1 = zero   
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_maip(u8 u,u8 v) {
-  //A%d := [M%d++]
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_mbi(u8 u,u8 v) {
-  //B%d := [M%d]
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_mbim(u8 u,u8 v) {
-  //B%d := [M%d--]
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_rotb(u8 u) {
-  //B%d.M <-> B%d.P
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_mbip(u8 u,u8 v) {
-  //B%d := [M%d++]
-  //no DI        
-  op_illegal(NULL);
-}
-
 inline void puce_device::op_meim(u8 u) {
   //data.A <- [M%d--]
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_vrb(u8 u) {
-  //B%d==0
-  //DI1 = zero   
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_icd(u8 g,u8 f,u8 v) {
-  //L%d++ if D%x={%d}
   //no DI        
   op_illegal(NULL);
 }
@@ -494,36 +711,6 @@ inline void puce_device::op_emim(u8 u) {
 
 inline void puce_device::op_emip(u8 u) {
   //[M%d++] <- data.A
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_sdia(u8 u) {
-  //A%d <-> DI
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_icl(u8 u) {
-  //L%d++
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_addb(u8 u,u8 v) {
-  //B%d := A%d + B%d + DI0
-  //DI0,1,2 = CZH
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_anda(u8 u,u8 v) {
-  //A%d := A%d and B%d
-  //DI1 = zero   
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_ami(u8 u,u8 v) {
-  //[M%d] := A%d
   //no DI        
   op_illegal(NULL);
 }
@@ -582,13 +769,13 @@ inline void puce_device::op_eco(u8 u) {
   op_illegal(NULL);
 }
 
-inline void puce_device::op_sot(u8 u,u8 v) {
+inline void puce_device::op_sot(u8 u, u8 v) {
   //A%d - B%d + DI0
   //DI0,1,2 = CZH
   op_illegal(NULL);
 }
 
-inline void puce_device::op_andb(u8 u,u8 v) {
+inline void puce_device::op_andb(u8 u, u8 v) {
   //B%d := A%d and B%d
   //DI1 = zero   
   op_illegal(NULL);
@@ -606,19 +793,13 @@ inline void puce_device::op_enua(u8 u) {
   op_illegal(NULL);
 }
 
-inline void puce_device::op_sab(u8 u) {
-  //A%d <-> B%d
-  //no DI        
-  op_illegal(NULL);
-}
-
 inline void puce_device::op_azap(u8 u) {
   //A%d.P := 0
   //no DI        
   op_illegal(NULL);
 }
 
-inline void puce_device::op_sll(u8 u,u8 v) {
+inline void puce_device::op_sll(u8 u, u8 v) {
   //L%d <-> L%d
   //no DI        
   op_illegal(NULL);
@@ -660,19 +841,13 @@ inline void puce_device::op_slsa(u8 u) {
   op_illegal(NULL);
 }
 
-inline void puce_device::op_tdia(u8 u) {
-  //A%d := DI
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_sota(u8 u,u8 v) {
+inline void puce_device::op_sota(u8 u, u8 v) {
   //A%d := A%d - B%d + DI0
   //DI0,1,2 = CZH
   op_illegal(NULL);
 }
 
-inline void puce_device::op_ore(u8 u,u8 v) {
+inline void puce_device::op_ore(u8 u, u8 v) {
   //A%d xor B%d
   //DI1 = zero   
   op_illegal(NULL);
@@ -702,12 +877,6 @@ inline void puce_device::op_azbm(u8 u) {
   op_illegal(NULL);
 }
 
-inline void puce_device::op_mli(u8 u,u8 v) {
-  //L%d := [M%d]
-  //no DI        
-  op_illegal(NULL);
-}
-
 inline void puce_device::op_shdb(u8 u) {
   //B%d, DI0 := 0 >> B%d
   //DI0          
@@ -732,33 +901,15 @@ inline void puce_device::op_slsb(u8 u) {
   op_illegal(NULL);
 }
 
-inline void puce_device::op_tdib(u8 u) {
-  //B%d := DI
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_sotb(u8 u,u8 v) {
+inline void puce_device::op_sotb(u8 u, u8 v) {
   //B%d := A%d - B%d + DI0
   //DI0,1,2 = CZH
   op_illegal(NULL);
 }
 
-inline void puce_device::op_orea(u8 u,u8 v) {
+inline void puce_device::op_orea(u8 u, u8 v) {
   //A%d := A%d xor B%d
   //DI1 = zero   
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_tab(u8 u,u8 v) {
-  //B%d := A%d
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_tabp(u8 u,u8 v) {
-  //B%d.P := A%d.P
-  //no DI        
   op_illegal(NULL);
 }
 
@@ -774,32 +925,8 @@ inline void puce_device::op_azbp(u8 u) {
   op_illegal(NULL);
 }
 
-inline void puce_device::op_mlim(u8 u,u8 v) {
-  //L%d := [M%d--]
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_mlip(u8 u,u8 v) {
-  //L%d := [M%d++]
-  //no DI        
-  op_illegal(NULL);
-}
-
 inline void puce_device::op_esi(u8 u) {
   //[M%d] <- data/type
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_lmi(u8 u,u8 v) {
-  //[M%d}] := L%d
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_lpmip(u8 u,u8 v) {
-  //[M%d++] := ++L%d
   //no DI        
   op_illegal(NULL);
 }
@@ -810,25 +937,25 @@ inline void puce_device::op_dcl(u8 u) {
   op_illegal(NULL);
 }
 
-inline void puce_device::op_or(u8 u,u8 v) {
+inline void puce_device::op_or(u8 u, u8 v) {
   //A%d or B%d
   //DI1 = zero   
   op_illegal(NULL);
 }
 
-inline void puce_device::op_oreb(u8 u,u8 v) {
+inline void puce_device::op_oreb(u8 u, u8 v) {
   //B%d := A%d xor B%d
   //DI1 = zero   
   op_illegal(NULL);
 }
 
-inline void puce_device::op_tabm(u8 u,u8 v) {
+inline void puce_device::op_tabm(u8 u, u8 v) {
   //B%d.M := A%d.M
   //no DI        
   op_illegal(NULL);
 }
 
-inline void puce_device::op_tba(u8 u,u8 v) {
+inline void puce_device::op_tba(u8 u, u8 v) {
   //B%d := A%d
   //no DI        
   op_illegal(NULL);
@@ -852,18 +979,6 @@ inline void puce_device::op_esim(u8 u) {
   op_illegal(NULL);
 }
 
-inline void puce_device::op_lmim(u8 u,u8 v) {
-  //[M%d--] := L%d
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_lmip(u8 u,u8 v) {
-  //[M%d++] := L%d
-  //no DI        
-  op_illegal(NULL);
-}
-
 inline void puce_device::op_sei(u8 u) {
   //data.BA <- [%Md]
   //no DI        
@@ -876,7 +991,7 @@ inline void puce_device::op_vrl(u8 u) {
   op_illegal(NULL);
 }
 
-inline void puce_device::op_ora(u8 u,u8 v) {
+inline void puce_device::op_ora(u8 u, u8 v) {
   //A%d := A%d or B%d
   //DI1 = zero   
   op_illegal(NULL);
@@ -888,19 +1003,19 @@ inline void puce_device::op_seip(u8 u) {
   op_illegal(NULL);
 }
 
-inline void puce_device::op_tbap(u8 u,u8 v) {
+inline void puce_device::op_tbap(u8 u, u8 v) {
   //A%d.P := B%d.P
   //no DI        
   op_illegal(NULL);
 }
 
-inline void puce_device::op_tbam(u8 u,u8 v) {
+inline void puce_device::op_tbam(u8 u, u8 v) {
   //A%d.M := B%d.M
   //no DI        
   op_illegal(NULL);
 }
 
-inline void puce_device::op_tabc(u8 u,u8 v) {
+inline void puce_device::op_tabc(u8 u, u8 v) {
   //con <- A%d,B%d
   //no DI        
   op_illegal(NULL);
@@ -1101,7 +1216,7 @@ puce_device::decode(u16 pc, u16 opcode)
 		}
 		case 0x92:
 		{
-			op_main(u, v);
+			op_maim(u, v);
 			break;
 		}
 		case 0x93:
@@ -1420,7 +1535,7 @@ puce_device::decode(u16 pc, u16 opcode)
 			break;
 		case 0xba:
 		{
-			op_sab(u);
+			op_sab(u, v);
 			break;
 		}
 		case 0xbb:

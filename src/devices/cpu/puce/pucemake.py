@@ -45,7 +45,7 @@ inner = {
     0x8E: {0xF: ['vra',   'VRA A%02x',         'u',   'A%d==0',                       'u'  , 'DI1 = zero   ']},
     0x90: {0x0: ['mei',   'MEI M%02x',         'u',   'data.A <- [M%d]',              'u'  , 'no DI        ']},
     0x91: {'*': ['mai',   'MAI M%02x,A%02x',   'uv',  'A%d := [M%d]',                 'vu' , 'no DI        ']},
-    0x92: {'*': ['main',  'MAIM M%02x,A%02x',  'uv',  'A%d := [M%d--]',               'vu' , 'no DI        ']},
+    0x92: {'*': ['maim',  'MAIM M%02x,A%02x',  'uv',  'A%d := [M%d--]',               'vu' , 'no DI        ']},
     0x93: {0xF: ['tbdi',  'TBDI B%02x',        'u',   'DI := B%d',                    'u'  , 'DI set       ']},
     0x94: {0x0: ['meip',  'MEIP M%02x',        'u',   'data.A <- [M%d++]',            'u'  , 'no DI        ']},
     0x95: {0xF: ['icb',   'ICB B%02x',         'u',   'B%d++',                        'u'  , 'no DI        ']},
@@ -58,7 +58,7 @@ inner = {
     0x9C: {'*': ['mbip',  'MBIP M%02x,B%02x',  'uv',  'B%d := [M%d++]',               'vu' , 'no DI        ']},
     0x9D: {0x0: ['meim',  'MEIM M%02x',        'u',   'data.A <- [M%d--]',            'u'  , 'no DI        ']},
     0x9E: {0xF: ['vrb',   'VRB B%02x',         'u',   'B%d==0',                       'u'  , 'DI1 = zero   ']},
-    0xA0: {'*': ['icd',   'ICD%d D%x,L%02x',   'gfv', 'L%d++ if D%x={%d}',            'vgf', 'no DI        ']},
+    0xA0: {'*': ['icd',   'ICD%d D%x,L%02x',   'gfv', 'L%d++ if D%x=%d',              'vfg', 'no DI        ']},
     0xA1: {0x8: ['emim',  'EMIM M%02x',        'u',   '[M%d--] <- data.A',            'u'  , 'no DI        ']},
     0xA2: {0x8: ['emip',  'EMIP M%02x',        'u',   '[M%d++] <- data.A',            'u'  , 'no DI        ']},
     0xA3: {0xF: ['sdia',  'SDIA A%02x',        'u',   'A%d <-> DI',                   'u'  , 'no DI        ']},
@@ -141,7 +141,7 @@ def out(fout, s):
 def gen_decl_header(fout, desc):
     name = desc[0]
     args = desc[2]
-    argdecl = ",".join([f"u8 {var}" for var in args])
+    argdecl = ", ".join([f"u8 {var}" for var in args])
     out(fout, f"void op_{name}({argdecl});\n")
 
 def gen_decl_method(fout, desc):
@@ -149,7 +149,7 @@ def gen_decl_method(fout, desc):
     args = desc[2]
     com  = desc[3]
     dicom = desc[5]
-    argdecl = ",".join([f"u8 {var}" for var in args])
+    argdecl = ", ".join([f"u8 {var}" for var in args])
     out(fout, f"inline void puce_device::op_{name}({argdecl}) {{\n  //{com}\n  //{dicom}\n  op_illegal(NULL);\n}}\n\n")
 
 def gen_decl(fout, fun):

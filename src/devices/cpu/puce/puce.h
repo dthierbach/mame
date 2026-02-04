@@ -92,7 +92,7 @@ private:
 	void op_vra(u8 u);
 	void op_mei(u8 u);
 	void op_mai(u8 u, u8 v);
-	void op_main(u8 u, u8 v);
+	void op_maim(u8 u, u8 v);
 	void op_tbdi(u8 u);
 	void op_meip(u8 u);
 	void op_icb(u8 u);
@@ -126,7 +126,7 @@ private:
 	void op_andb(u8 u, u8 v);
 	void op_eda(u8 u);
 	void op_enua(u8 u);
-	void op_sab(u8 u);
+	void op_sab(u8 u, u8 v);
 	void op_azap(u8 u);
 	void op_sll(u8 u, u8 v);
 	void op_comx(u8 u);

@@ -353,7 +353,7 @@ inline void puce_disassembler::decode(std::ostream &stream, u16 pc, u16 opcode)
 			u8 g = BIT(u, 0);
 			u8 f = BIT(u, 1, 3);
 			dis = string_format("ICD%d D%x,L%02x", g, f, v);
-			com = string_format("L%d++ if D%x={%d}", v, g, f);
+			com = string_format("L%d++ if D%x=%d", v, f, g);
 			break;
 		}
 		case 0xa1:
