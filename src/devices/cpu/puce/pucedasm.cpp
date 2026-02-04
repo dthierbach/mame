@@ -19,7 +19,7 @@ offs_t puce_disassembler::disassemble(std::ostream &stream, offs_t pc,
 	const puce_disassembler::data_buffer &opcodes, const puce_disassembler::data_buffer &params)
 {
 	u16 opcode = opcodes.r16(pc);
-	LOG("  disasm pc=%04x opcode=%08x", pc, opcode);
+	// LOG("  disasm pc=%04x opcode=%08x\n", pc, opcode);
 	decode(stream, pc, opcode);
 
 	return 1 | SUPPORTED;

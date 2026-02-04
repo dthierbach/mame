@@ -68,6 +68,7 @@ private:
 
 	// address spaces
 	address_space *m_program;
+	address_space *m_data;
 
 	void op_sai(u16 j);
   void op_amd(u8 s, u8 t);

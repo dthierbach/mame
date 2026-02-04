@@ -42,6 +42,7 @@ void puce_device::device_start()
 {
 	LOG("%s: device_start\n", machine().describe_context());
 	m_program = &space(AS_PROGRAM);
+	m_data = &space(AS_DATA);
 
 	// register our state for the debugger
 	state_add(PUCE_LVL,        "LVL",       m_lvl).mask(0x3);
@@ -99,12 +100,14 @@ device_memory_interface::space_config_vector puce_device::memory_space_config() 
 
 
 uint16_t puce_device::read16_delegate(offs_t offset) {
-	LOG("%s: read16_delegate %04x\n", machine().describe_context(), offset);
-	return 0x1234;
+	// LOG("%s: read16_delegate %04x\n", machine().describe_context(), offset);
+	u16 data = m_data->read_word(offset << 1);
+	return data;
 }
 
 void puce_device::write16_delegate(offs_t offset, uint16_t data) {
-	LOG("%s: write16_delegate %04x data=%04x\n", machine().describe_context(), offset, data);
+	// LOG("%s: write16_delegate %04x data=%04x\n", machine().describe_context(), offset, data);
+	m_data->write_word(offset << 1, data);
 }
 
 //-------------------------------------------------
@@ -246,10 +249,19 @@ void puce_device::execute_run()
 		debugger_instruction_hook(m_pc);
 		// everything is a nop for now
 
+		u16 opcode = m_program->read_word(m_pc);
+		decode(m_pc, opcode);
+
 		--m_icount;
 		inc_vpc();
 	}
 }
+
+void puce_device::op_illegal(u16 opcode) {
+	// TODO cause debugger breakpoint
+	logerror("Illegal opcode pc=%04x\n", m_pc);
+}
+
 
 inline void puce_device::op_sai(u16 j) {
   //jump %04x
