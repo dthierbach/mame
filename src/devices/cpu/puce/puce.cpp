@@ -98,6 +98,15 @@ device_memory_interface::space_config_vector puce_device::memory_space_config() 
 }
 
 
+uint16_t puce_device::read16_delegate(offs_t offset) {
+	LOG("%s: read16_delegate %04x\n", machine().describe_context(), offset);
+	return 0x1234;
+}
+
+void puce_device::write16_delegate(offs_t offset, uint16_t data) {
+	LOG("%s: write16_delegate %04x data=%04x\n", machine().describe_context(), offset, data);
+}
+
 //-------------------------------------------------
 //  state_string_export - export state as a string
 //  for the debugger
@@ -233,7 +242,7 @@ void puce_device::execute_run()
 	while (m_icount > 0)
 	{
 		get_vpc();
-		LOG("%s: device_exec lvl=%i pc=%04x\n", machine().describe_context(), m_lvl, m_pc);
+		// LOG("%s: device_exec lvl=%i pc=%04x\n", machine().describe_context(), m_lvl, m_pc);
 		debugger_instruction_hook(m_pc);
 		// everything is a nop for now
 
