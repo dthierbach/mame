@@ -61,7 +61,7 @@ inner = {
     0xA0: {'*': ['icd',   'ICD%d D%x,L%02x',   'gfv', 'L%d++ if D%x=%d',              'vfg', 'no DI        ']},
     0xA1: {0x8: ['emim',  'EMIM M%02x',        'u',   '[M%d--] <- data.A',            'u'  , 'no DI        ']},
     0xA2: {0x8: ['emip',  'EMIP M%02x',        'u',   '[M%d++] <- data.A',            'u'  , 'no DI        ']},
-    0xA3: {0xF: ['sdia',  'SDIA A%02x',        'u',   'A%d <-> DI',                   'u'  , 'no DI        ']},
+    0xA3: {0xF: ['sdia',  'SDIA A%02x',        'u',   'A%d <-> DI',                   'u'  , 'DI set       ']},
     0xA5: {0xF: ['icl',   'ICL L%02x',         'u',   'L%d++',                        'u'  , 'no DI        ']},
     0xA6: {'*': ['addb',  'ADDB A%02x,B%02x',  'uv',  'B%d := A%d + B%d + DI0',       'vuv', 'DI0,1,2 = CZH']},
     0xA7: {'*': ['anda',  'ANDA A%02x,B%02x',  'uv',  'A%d := A%d and B%d',           'uuv', 'DI1 = zero   ']},
