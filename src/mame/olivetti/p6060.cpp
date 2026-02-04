@@ -54,7 +54,8 @@ private:
 	required_device<screen_device> m_screen;
 	required_ioport m_buttons;
 
-	void mem_map(address_map &map) ATTR_COLD;
+	void program_mem_map(address_map &map) ATTR_COLD;
+	void data_mem_map(address_map &map) ATTR_COLD;
 };
 
 void p6060_state::machine_start()
@@ -104,7 +105,7 @@ uint32_t p6060_state::screen_update(screen_device &screen, bitmap_rgb32 &bitmap,
 //  ADDRESS MAPS
 //**************************************************************************
 
-void p6060_state::mem_map(address_map &map)
+void p6060_state::program_mem_map(address_map &map)
 {
 	// TODO: Add byte access delegate to shift address for lower half.
 	map(0x0000, 0x7fff).ram();
@@ -112,6 +113,12 @@ void p6060_state::mem_map(address_map &map)
 	map(0x8800, 0x9fff).unmaprw();
 	map(0xa000, 0xbfff).ram();
 	map(0xc000, 0xffff).unmaprw();
+}
+
+void p6060_state::data_mem_map(address_map &map)
+{
+	// TODO: Add byte access delegate to shift address for lower half.
+	map(0x0000, 0xffff).ram();
 }
 
 //**************************************************************************
@@ -140,7 +147,8 @@ void p6060_state::p6060(machine_config &config)
 {
 	// basic machine hardware
 	PUCE(config, m_maincpu, 1_MHz_XTAL);
-	m_maincpu->set_addrmap(AS_PROGRAM, &p6060_state::mem_map);
+	m_maincpu->set_addrmap(AS_PROGRAM, &p6060_state::program_mem_map);
+	m_maincpu->set_addrmap(AS_DATA, &p6060_state::data_mem_map);
 
 	// screen
 	// Burroughs SSD0132 Plasma Display, 222x7

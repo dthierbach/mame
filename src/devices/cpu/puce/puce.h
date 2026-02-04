@@ -42,6 +42,7 @@ public:
 
 	// address spaces
 	address_space_config m_program_config;
+	address_space_config m_data_config;
 
 protected:
 	// construction/destruction

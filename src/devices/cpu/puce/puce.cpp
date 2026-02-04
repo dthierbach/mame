@@ -33,7 +33,8 @@ puce_device::puce_device(const machine_config &mconfig, const char *tag, device_
 puce_device::puce_device(const machine_config &mconfig, device_type type, const char *tag, device_t *owner, uint32_t clock) :
 	cpu_device(mconfig, type, tag, owner, clock),
 	// ..., data width, address width, addr shift
-	m_program_config("program", ENDIANNESS_BIG, 16, 16, -1)
+	m_program_config("program", ENDIANNESS_BIG, 16, 16, -1),
+	m_data_config("data", ENDIANNESS_BIG, 8, 16, 0)
 {
 }
 
@@ -92,6 +93,7 @@ device_memory_interface::space_config_vector puce_device::memory_space_config() 
 {
 	return space_config_vector {
 		std::make_pair(AS_PROGRAM, &m_program_config),
+		std::make_pair(AS_DATA, &m_data_config),
 	};
 }
 
@@ -243,7 +245,20 @@ void puce_device::execute_run()
 inline void puce_device::op_sai(u16 j) {
   //jump %04x
   //no DI
-  op_illegal(NULL);
+	switch (m_lvl) {
+	case 4:
+		RL(0) = (RL(0) & 0xe000) | (j & 0x1fff);
+		break;
+	case 3:
+		RL(1) = (RL(1) & 0xe000) | (j & 0x1fff);
+		break;
+	case 2:
+		RA(12) = j & 0xff;
+		break;
+	case 1:
+		RA(13) = j & 0xff;
+		break;
+	}
 }
 
 inline void puce_device::op_amd(u8 s,u8 t) {
