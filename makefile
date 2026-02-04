@@ -13,7 +13,7 @@
 ###########################################################################
 
 # REGENIE = 1
-# VERBOSE = 1
+VERBOSE = 1
 # NOWERROR = 1
 # IGNORE_GIT = 1
 
@@ -43,7 +43,7 @@
 # NO_USE_XINPUT_WII_LIGHTGUN_HACK = 1
 # FORCE_DRC_C_BACKEND = 1
 
-# DEBUG = 1
+DEBUG = 1
 # PROFILER = 1
 # SANITIZE =
 
@@ -83,7 +83,7 @@
 # MESA_INSTALL_ROOT = /opt/mesa
 # SDL_INSTALL_ROOT = /opt/sdl2
 # SDL_FRAMEWORK_PATH = $(HOME)/Library/Frameworks
-# USE_LIBSDL = 1
+USE_LIBSDL = 1
 # CYGWIN_BUILD = 1
 
 # BUILDDIR = build
