@@ -17,6 +17,8 @@ Olivetti P6060
 
 #include "p6060.lh"
 
+#define VERBOSE (1)
+#include "logmacro.h"
 
 namespace {
 
@@ -60,6 +62,7 @@ private:
 
 void p6060_state::machine_start()
 {
+	LOG("%s: machine_start\n", machine().describe_context());
 	// m_lamps.resolve();
 	/*
 	m_lamps[0] = 0;
@@ -81,6 +84,7 @@ void p6060_state::machine_start()
 
 void p6060_state::machine_reset()
 {
+	LOG("%s: machine_reset\n", machine().describe_context());
 }
 
 //**************************************************************************
@@ -102,13 +106,16 @@ uint32_t p6060_state::screen_update(screen_device &screen, bitmap_rgb32 &bitmap,
 }
 
 //**************************************************************************
-//  ADDRESS MAPS
+//  ADDRESS MAPS and delegates
 //**************************************************************************
 
 void p6060_state::program_mem_map(address_map &map)
 {
 	// TODO: Add byte access delegate to shift address for lower half.
-	map(0x0000, 0x7fff).ram();
+	// map(0x0000, 0x7fff).ram();
+	map.unmap_value_high();
+	// map(0x0000, 0x7fff).rw(P6060_CPU_TAG, FUNC(puce_device::read16_delegate), FUNC(puce_device::write16_delegate));
+	map(0x0000, 0x7fff).rw(m_maincpu, FUNC(puce_device::read16_delegate), FUNC(puce_device::write16_delegate));
 	map(0x8000, 0x87ff).rom().region("bootrom", 0);
 	map(0x8800, 0x9fff).unmaprw();
 	map(0xa000, 0xbfff).ram();

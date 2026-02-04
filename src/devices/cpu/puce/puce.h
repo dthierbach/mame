@@ -44,6 +44,9 @@ public:
 	address_space_config m_program_config;
 	address_space_config m_data_config;
 
+	uint16_t read16_delegate(offs_t offset);
+	void write16_delegate(offs_t offset, uint16_t data);
+
 protected:
 	// construction/destruction
 	puce_device(const machine_config &mconfig, device_type type, const char *tag, device_t *owner, uint32_t clock);
