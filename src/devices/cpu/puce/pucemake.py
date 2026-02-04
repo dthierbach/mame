@@ -79,7 +79,7 @@ inner = {
     0xB7: {'*': ['andb',  'ANDB A%02x,B%02x',  'uv',  'B%d := A%d and B%d',           'vuv', 'DI1 = zero   ']},
     0xB8: {0x8: ['eda',   'EDA A%02x',         'u',   'A%d <- data.A',                'u'  , 'no DI        ']},
     0xB9: {0x0: ['enua',  'ENUA A%02x',        'u',   'A%d <- name',                  'u'  , 'no DI        ']},
-    0xBA: {'*': ['sab',   'SAB A%02x,B%02x',   'u',   'A%d <-> B%d',                  'uv' , 'no DI        ']},
+    0xBA: {'*': ['sab',   'SAB A%02x,B%02x',   'uv',  'A%d <-> B%d',                  'uv' , 'no DI        ']},
     0xBB: {0xF: ['azap',  'AZAP A%02x',        'u',   'A%d.P := 0',                   'u'  , 'no DI        ']},
     0xBC: {'*': ['sll',   'SLL L%02x,L%02x',   'uv',  'L%d <-> L%d',                  'uv' , 'no DI        ']},
     0xBD: {0x0: ['comx',  'COM%d',             'u',   '  C%d',                        'u'  , 'no DI        ']},

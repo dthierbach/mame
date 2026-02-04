@@ -19,6 +19,7 @@ offs_t puce_disassembler::disassemble(std::ostream &stream, offs_t pc,
 	const puce_disassembler::data_buffer &opcodes, const puce_disassembler::data_buffer &params)
 {
 	u16 opcode = opcodes.r16(pc);
+	LOG("  disasm pc=%04x opcode=%08x", pc, opcode);
 	decode(stream, pc, opcode);
 
 	return 1 | SUPPORTED;
@@ -597,7 +598,7 @@ inline void puce_disassembler::decode(std::ostream &stream, u16 pc, u16 opcode)
 			break;
 		case 0xba:
 		{
-			dis = string_format("SAB A%02x,B%02x", u);
+			dis = string_format("SAB A%02x,B%02x", u, v);
 			com = string_format("A%d <-> B%d", u, v);
 			break;
 		}
