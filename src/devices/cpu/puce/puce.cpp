@@ -254,13 +254,12 @@ void puce_device::execute_run()
 		get_vpc();
 		// LOG("%s: device_exec lvl=%i pc=%04x\n", machine().describe_context(), m_lvl, m_pc);
 		debugger_instruction_hook(m_pc);
-		// everything is a nop for now
 
 		u16 opcode = m_program->read_word(m_pc);
+		inc_vpc();
 		decode(m_pc, opcode);
 
 		--m_icount;
-		inc_vpc();
 	}
 }
 
@@ -1200,8 +1199,8 @@ puce_device::decode(u16 pc, u16 opcode)
 	}
 	case 6:
 	{
-		u8 e = BIT(r, 0);
-		u8 d = BIT(r, 1, 3);
+		u8 e = BIT(s, 0);
+		u8 d = BIT(s, 1, 3);
 		u16 k = (pc & 0xff00) | t;
 		op_sadx(e, d, k);
 		break;

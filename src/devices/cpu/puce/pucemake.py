@@ -13,8 +13,8 @@ fields = {
     "w": "u8 w = BIT(opcode,8,8);",
     "j": "u16 j = (pc & 0xe000) | (opcode & 0x1fff);",
     "k": "u16 k = (pc & 0xff00) | t;",
-    "d": "u8 d = BIT(r,1,3);",
-    "e": "u8 e = BIT(r,0);",
+    "d": "u8 d = BIT(s,1,3);",
+    "e": "u8 e = BIT(s,0);",
     "f": "u8 f = BIT(u,1,3);",
     "g": "u8 g = BIT(u,0);"
 }

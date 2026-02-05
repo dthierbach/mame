@@ -71,8 +71,8 @@ inline void puce_disassembler::decode(std::ostream &stream, u16 pc, u16 opcode)
 	}
 	case 6:
 	{
-		u8 e = BIT(r, 0);
-		u8 d = BIT(r, 1, 3);
+		u8 e = BIT(s, 0);
+		u8 d = BIT(s, 1, 3);
 		u16 k = (pc & 0xff00) | t;
 		dis = string_format("SAD%d D%x,%04x", e, d, k);
 		com = string_format("br D%d=%d,%04x", d, e, k);
