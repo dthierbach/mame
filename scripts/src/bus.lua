@@ -4138,6 +4138,25 @@ end
 
 ---------------------------------------------------
 --
+--@src/devices/bus/p6060/p6060bus.h,BUSES["P6060"] = true
+---------------------------------------------------
+
+if BUSES["P6060"] then
+	files {
+		MAME_DIR .. "src/devices/bus/p6060/cards.cpp",
+		MAME_DIR .. "src/devices/bus/p6060/cards.h",
+		MAME_DIR .. "src/devices/bus/p6060/p6060bus.cpp",
+		MAME_DIR .. "src/devices/bus/p6060/p6060bus.h",
+		MAME_DIR .. "src/devices/bus/p6060/goino.cpp",
+		MAME_DIR .. "src/devices/bus/p6060/goino.h",
+		MAME_DIR .. "src/devices/bus/p6060/gips.cpp",
+		MAME_DIR .. "src/devices/bus/p6060/gips.h",
+	}
+end
+
+
+---------------------------------------------------
+--
 --@src/devices/bus/pasopia/pac2.h,BUSES["PASOPIA"] = true
 ---------------------------------------------------
 

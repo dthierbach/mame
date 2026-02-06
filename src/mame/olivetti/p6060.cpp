@@ -2,7 +2,7 @@
 // copyright-holders:Dirk Thierbach
 /******************************************************************************
 
-Olivetti P6060
+	Olivetti P6060
 
 ******************************************************************************/
 
@@ -111,10 +111,7 @@ uint32_t p6060_state::screen_update(screen_device &screen, bitmap_rgb32 &bitmap,
 
 void p6060_state::program_mem_map(address_map &map)
 {
-	// TODO: Add byte access delegate to shift address for lower half.
-	// map(0x0000, 0x7fff).ram();
 	map.unmap_value_high();
-	// map(0x0000, 0x7fff).rw(P6060_CPU_TAG, FUNC(puce_device::read16_delegate), FUNC(puce_device::write16_delegate));
 	map(0x0000, 0x7fff).rw(m_maincpu, FUNC(puce_device::read16_delegate), FUNC(puce_device::write16_delegate));
 	map(0x8000, 0x87ff).rom().region("bootrom", 0);
 	map(0x8800, 0x9fff).unmaprw();
@@ -124,7 +121,8 @@ void p6060_state::program_mem_map(address_map &map)
 
 void p6060_state::data_mem_map(address_map &map)
 {
-	// TODO: Add byte access delegate to shift address for lower half.
+	// When switching to managed RAM: "User RAM" sizes are 16K, 24K, 32K, 40K, 48K (bytes)
+	// That corresponds to 32K. 40K, 48K, 56K, 64K total lower RAM (bytes).
 	map(0x0000, 0xffff).ram();
 }
 
@@ -174,6 +172,16 @@ void p6060_state::p6060(machine_config &config)
 
 	SPEAKER(config, "mono").front_center();
 
+	/*
+	TODO: goino and lfoppy in fixed position
+	P6060BUS(config, "bus", 0);
+	P6060BUS_SLOT(config, "sl1", 0, "bus", p6060_cards, nullptr);
+	P6060BUS_SLOT(config, "sl2", 0, "bus", p6060_cards, nullptr);
+	P6060BUS_SLOT(config, "sl3", 0, "bus", p6060_cards, nullptr);
+	P6060BUS_SLOT(config, "sl4", 0, "bus", p6060_cards, nullptr);
+	P6060BUS_SLOT(config, "sl5", 0, "bus", p6060_cards, nullptr);
+  */
+
 }
 
 //**************************************************************************
@@ -194,71 +202,3 @@ ROM_END
 
 //    YEAR  NAME   PARENT  COMPAT  MACHINE  INPUT  CLASS        INIT        COMPANY      FULLNAME  FLAGS
 COMP( 1975, p6060, 0,      0,      p6060,   p6060,  p6060_state, empty_init, "Olivetti", "P6060",  MACHINE_SUPPORTS_SAVE)
-
-/*
-
-p6060bus:
-
-EXT external bus
-
-prio enum
-  1 L1
-	2 L2
-	3 L3A
-	4 L3B
-
-state
-  select controller
-	from peri: data 8, name 8, type 8
-	to peri: data/cmd 16
-
-## CPU > Peri
-
-reset
-  all controllers
-
-select
-  all controllers in order
-	stop at first
-	save which
-
-## CPU > selected peri:
-# use signal line abstraction?
-
-
-finish
-
-data without ECOT
-
-data with ECOT
-
-command
-
-EC1F
-EC2F
-
-## peri > CPU
-
-store 
-
-## Interrupt
-
-intr_finish
-  COM0 from CPU
-	check queues in order
-	found:
-	   remove from queue
-      grant
-
-intr_request(prio)
-  check CPU level
-	if available, grant
-	otherwise queue (for simplicity)
-
-intr_grant(prio)
-  set CPU level
-  callback card
-
-ECM1,2,3  CPU request irq ???
-
-*/

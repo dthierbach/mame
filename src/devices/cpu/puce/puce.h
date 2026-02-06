@@ -1,10 +1,10 @@
 // license:BSD-3-Clause
-// copyright-holders:Ryan Holtz
-/*
-    First-gen DEC PDP-8 CPU emulator
+// copyright-holders:Dirk Thierbach
+/***************************************************************************
 
-    Written by Ryan Holtz
-*/
+	Olivetti P6060 CPU
+
+***************************************************************************/
 
 #ifndef MAME_CPU_PUCE_PUCE_H
 #define MAME_CPU_PUCE_PUCE_H

@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:AJR
+// copyright-holders:Dirk Thierbach
 
 #ifndef MAME_CPU_PUCE_PUCEDASM_H
 #define MAME_CPU_PUCE_PUCEDASM_H

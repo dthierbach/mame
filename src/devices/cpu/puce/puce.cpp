@@ -1,12 +1,14 @@
 // license:BSD-3-Clause
 // copyright-holders:Dirk Thierbach
-/*
-    Two-board TTL CPU "PUCE" made by Olivetti.
+/***************************************************************************
 
-		Used in the TC800, PC6060, and with a variant in the P6066.
+  Olivetti P6060 CPU
 
-    Written by Dirk Thierbach
-*/
+	Two-board TTL CPU "PUCE" made by Olivetti.
+
+	Used in the TC800, PC6060, and with a variant in the P6066.
+
+***************************************************************************/
 
 #include "emu.h"
 #include "puce.h"
