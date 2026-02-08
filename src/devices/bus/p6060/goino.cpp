@@ -10,10 +10,16 @@
 
 #include "goino.h"
 
-#include "emupal.h"
+// #include "emupal.h"
 #include "screen.h"
 
+#define VERBOSE (1)
+#include "logmacro.h"
+
 namespace {
+
+#define DISPLAY_WIDTH 222
+#define DISPLAY_HEIGHT 7
 
 class p6060bus_goino_device:
 		public device_t,
@@ -23,16 +29,18 @@ public:
 	// construction/destruction
 	p6060bus_goino_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
+	bool strobe_ecos();
+
 protected:
 	virtual void device_start() override ATTR_COLD;
 	virtual void device_reset() override ATTR_COLD;
 	virtual void device_add_mconfig(machine_config &config) override ATTR_COLD;
-	virtual ioport_constructor device_input_ports() const override ATTR_COLD;
+	// virtual ioport_constructor device_input_ports() const override ATTR_COLD;
 
 private:
-	u32 screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
+	// 	 u32 screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 
-	required_ioport m_dips;
 	required_device<screen_device> m_screen;
 };
 
@@ -46,42 +54,48 @@ void p6060bus_goino_device::device_add_mconfig(machine_config &config)
 
 	PALETTE(config, "palette", palette_device::MONOCHROME);
 	*/
+
+	// screen
+	// Burroughs SSD0132 Plasma Display, 222x7
+	// 1 MHz update freq ???
+	SCREEN(config, m_screen, SCREEN_TYPE_RASTER);
+	// pixclock, htotal, hbend, hbstart, vtotal, vbend, vbstart)
+	m_screen->set_raw(XTAL(8'000'000)/2, DISPLAY_WIDTH, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, 0, DISPLAY_HEIGHT);
+	// m_screen->set_raw(1021800*14, (65*7)*2, 0, (40*7)*2, 262, 0, 192);
+	// m_screen->set_color(rgb_t::amber());
+	// m_screen->set_palette(m_video);
+	m_screen->set_no_palette();
+	m_screen->set_screen_update(FUNC(p6060bus_goino_device::screen_update));
 }
 
-static INPUT_PORTS_START( dips )
-	PORT_START("DIPS")
-	PORT_DIPNAME( 0xe000, 0x6000, "Address Range" )
-	PORT_DIPSETTING(  0x2000, "2000-3FFF" )
-	PORT_DIPSETTING(  0x4000, "4000-5FFF" )
-	PORT_DIPSETTING(  0x6000, "6000-7FFF" )
-	PORT_DIPSETTING(  0x8000, "8000-9FFF" )
-	PORT_DIPSETTING(  0xa000, "A000-BFFF" )
-	PORT_DIPSETTING(  0xc000, "C000-DFFF" )
-INPUT_PORTS_END
-
+/*
 ioport_constructor p6060bus_goino_device::device_input_ports() const
 {
 	return INPUT_PORTS_NAME(dips);
 }
+*/
 
 p6060bus_goino_device::p6060bus_goino_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock)
 	: device_t(mconfig, P6060BUS_GOINO, tag, owner, clock)
 	, device_p6060bus_card_interface(mconfig, *this)
-	, m_dips(*this, "DIPS")
 	, m_screen(*this, "screen")
 {
 }
 
 void p6060bus_goino_device::device_start()
 {
+	LOG("%s: device_start\n", machine().describe_context());
 }
 
 void p6060bus_goino_device::device_reset()
 {
+	LOG("%s: device_reset\n", machine().describe_context());
 }
 
-u32 p6060bus_goino_device::screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect)
+uint32_t p6060bus_goino_device::screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect)
+// u32 p6060bus_goino_device::screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect)
 {
+	// LOG("%s: screen_update\n", machine().describe_context());
 	/*
 	auto const vram8 = &m_ram[0];
 
@@ -103,8 +117,29 @@ u32 p6060bus_goino_device::screen_update(screen_device &screen, bitmap_ind16 &bi
 		}
 	}
 	*/
+	// pen_t const pen = 0xf09090f0;
+	// rgb_t pix(0x90, 0x90, 0xf0);
+	for (int y = 0; y < DISPLAY_HEIGHT; y++)
+	{
+		for (int x = 0; x < DISPLAY_WIDTH; x++)
+		{
+			rgb_t pix;
+			if ((x ^ y) & 1) {
+				pix = rgb_t::amber();
+			} else {
+				pix = rgb_t::black();
+			}
+			bitmap.pix(y, x) = pix;
+		}
+	}
 	return 0;
 }
+
+bool p6060bus_goino_device::strobe_ecos() {
+	LOG("%s: ecos\n", machine().describe_context());
+	return true;
+}
+
 
 } // anonymous namespace
 

@@ -22,6 +22,8 @@
 #include "p6060intf.h"
 #include "cpu/puce/puce.h"
 
+#define P6060_MAXSLOT 13
+
 //**************************************************************************
 //  TYPE DEFINITIONS
 //**************************************************************************
@@ -77,8 +79,8 @@ public:
 	// inline configuration
 	template <typename T> void set_cpu(T &&tag) { m_maincpu.set_tag(std::forward<T>(tag)); }
 
-	void add_p6060bus_card(device_p6060bus_card_interface *card);
-	device_p6060bus_card_interface *get_p6060bus_card();
+	device_p6060bus_card_interface *get_p6060bus_card(int slot);
+	void add_p6060bus_card(int slot, device_p6060bus_card_interface *card);
 
 // ---- from CPU
 
@@ -130,8 +132,9 @@ protected:
 
 	// internal state
 	required_device<puce_device> m_maincpu;
+	device_p6060bus_card_interface *m_device_list[P6060_MAXSLOT+1];
 
-	device_p6060bus_card_interface *m_device;
+	int m_select; // slot of selected card
 
 	u16 m_ecd;
 	u8 m_epd;
@@ -160,13 +163,13 @@ public:
 
 protected:
 
-	void set_ecor(int level);
-	bool strobe_ecos();
-	void strobe_ecot();
-	void strobe_ecoc();
-	void strobe_ecof();
-	void set_ec1f(int level);
-	void set_ec2f(int level);
+	void set_ecor(int level) { };
+	bool strobe_ecos() { return false; };
+	void strobe_ecot() { };
+	void strobe_ecoc() { };
+	void strobe_ecof() { };
+	void set_ec1f(int level) { };
+	void set_ec2f(int level) { };
 
 	device_p6060bus_card_interface(const machine_config &mconfig, device_t &device);
 

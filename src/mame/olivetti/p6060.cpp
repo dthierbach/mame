@@ -13,7 +13,6 @@
 #include "bus/p6060/cards.h"
 #include "machine/timer.h"
 
-#include "screen.h"
 #include "softlist_dev.h"
 #include "speaker.h"
 
@@ -31,9 +30,6 @@ namespace {
 #define P6060_CPU_TAG "maincpu"
 #define P6060_BUS_TAG "extbus"
 
-#define DISPLAY_WIDTH 222
-#define DISPLAY_HEIGHT 7
-
 class p6060_state : public driver_device
 {
 public:
@@ -41,7 +37,6 @@ public:
 		: driver_device(mconfig, type, tag)
 		, m_maincpu(*this, P6060_CPU_TAG)
 		, m_extbus(*this, P6060_BUS_TAG)
-		, m_screen(*this, "screen")
 		, m_buttons(*this, "BUTTONS")
 	{ }
 
@@ -58,7 +53,6 @@ protected:
 private:
 	required_device<puce_device> m_maincpu;
 	required_device<p6060bus_device> m_extbus;
-	required_device<screen_device> m_screen;
 	required_ioport m_buttons;
 
 	void program_mem_map(address_map &map) ATTR_COLD;
@@ -99,14 +93,6 @@ void p6060_state::machine_reset()
 // itmap_ind16
 uint32_t p6060_state::screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect)
 {
-	pen_t const pen = 0xf09090f0;
-	for (int y = 0; y < DISPLAY_HEIGHT; y++)
-	{
-		for (int x = 0; x < DISPLAY_WIDTH; x++)
-		{
-			bitmap.pix(y, x) = pen;
-		}
-	}
 	return 0;
 }
 
@@ -186,17 +172,6 @@ void p6060_state::p6060(machine_config &config)
 	A2BUS_SLOT(config, "sl6", XTAL(14'318'181) / 2, m_a2bus, apple2_cards, "diskiing");
 	A2BUS_SLOT(config, "sl7", XTAL(14'318'181) / 2, m_a2bus, apple2_cards, nullptr);
   */
-
-	// screen
-	// Burroughs SSD0132 Plasma Display, 222x7
-	// 1 MHz update freq ???
-	SCREEN(config, m_screen, SCREEN_TYPE_RASTER);
-	// pixclock, htotal, hbend, hbstart, vtotal, vbend, vbstart)
-	m_screen->set_raw(XTAL(8'000'000)/2, DISPLAY_WIDTH, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, 0, DISPLAY_HEIGHT);
-	// m_screen->set_raw(1021800*14, (65*7)*2, 0, (40*7)*2, 262, 0, 192);
-	m_screen->set_color(rgb_t::amber());
-	// m_screen->set_palette(m_video);
-	m_screen->set_screen_update(FUNC(p6060_state::screen_update));
 
 	// video hardware
 

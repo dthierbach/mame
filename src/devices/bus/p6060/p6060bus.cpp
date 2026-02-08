@@ -79,7 +79,6 @@ p6060bus_device::p6060bus_device(const machine_config &mconfig, const char *tag,
 p6060bus_device::p6060bus_device(const machine_config &mconfig, device_type type, const char *tag, device_t *owner, uint32_t clock)
 	: device_t(mconfig, type, tag, owner, clock)
 	, m_maincpu(*this, finder_base::DUMMY_TAG)
-	, m_device(nullptr)
 {
 }
 
@@ -89,8 +88,9 @@ p6060bus_device::p6060bus_device(const machine_config &mconfig, device_type type
 
 void p6060bus_device::device_start()
 {
-	// clear slot
-	m_device = nullptr;
+	// clear slots
+	std::fill(std::begin(m_device_list), std::end(m_device_list), nullptr);
+	m_select = -1;
 }
 
 //-------------------------------------------------
@@ -99,16 +99,25 @@ void p6060bus_device::device_start()
 
 void p6060bus_device::device_reset()
 {
+	m_select = -1;
 }
 
-device_p6060bus_card_interface *p6060bus_device::get_p6060bus_card()
+device_p6060bus_card_interface *p6060bus_device::get_p6060bus_card(int slot)
 {
-	return m_device;
+	if (slot < 1 || slot > P6060_MAXSLOT)
+	{
+		return nullptr;
+	}
+	if (m_device_list[slot])
+	{
+		return m_device_list[slot];
+	}
+	return nullptr;
 }
 
-void p6060bus_device::add_p6060bus_card(device_p6060bus_card_interface *card)
+void p6060bus_device::add_p6060bus_card(int slot, device_p6060bus_card_interface *card)
 {
-	m_device = card;
+	m_device_list[slot] = card;
 }
 
 // ---- from CPU
@@ -125,42 +134,100 @@ u16 p6060bus_device:: get_ecd() {
   // reset: all cards
 void p6060bus_device::set_ecor(int level) {
 	LOG("%s: ecor=%d reset\n", machine().describe_context(), level);
+	for (int slot = 1; slot <= P6060_MAXSLOT; slot++)
+	{
+		auto card = get_p6060bus_card(slot);
+		if (card != nullptr)
+		{
+			card->set_ecor(level);
+		}
+	}
 }
 
 	// select: in priority order to all cards
 bool p6060bus_device::strobe_ecos() {
 	LOG("%s: ecos select\n", machine().describe_context());
+	// TODO do this in priority order
+	for (int slot = P6060_MAXSLOT; slot >= 1; slot--)
+	{
+		auto card = get_p6060bus_card(slot);
+		if (card != nullptr)
+		{
+			if (card->strobe_ecos()) {
+				LOG("%s: slot %d responded", machine().describe_context(), slot);
+				m_select = slot;
+				return true;
+			}
+		}
+	}
+	m_select = -1;
 	return false;
 }
 
   // transmit/sync: selected card
 void p6060bus_device::strobe_ecot() {
 	LOG("%s: ecot transmit\n", machine().describe_context());
+	if (m_select >= 0) {
+		auto card = get_p6060bus_card(m_select);
+		if (card != nullptr)
+		{
+			card->strobe_ecot();
+		}
+	}
 }
 
   // command (includes ecot): selected card
 void p6060bus_device::strobe_ecoc() {
 	LOG("%s: ecoc command\n", machine().describe_context());
+	if (m_select >= 0) {
+		auto card = get_p6060bus_card(m_select);
+		if (card != nullptr)
+		{
+			card->strobe_ecoc();
+		}
+	}
 }
 
   // finish: selected card
 void p6060bus_device::strobe_ecof() {
 	LOG("%s: ecof finish\n", machine().describe_context());
+	if (m_select >= 0) {
+		auto card = get_p6060bus_card(m_select);
+		if (card != nullptr)
+		{
+			card->strobe_ecof();
+		}
+	}
+
 }
 
   // signal 1: selected card
 void p6060bus_device::set_ec1f(int level) {
 	LOG("%s: ec1f=%d\n", machine().describe_context(), level);
+	if (m_select >= 0) {
+		auto card = get_p6060bus_card(m_select);
+		if (card != nullptr)
+		{
+			card->set_ec1f(level);
+		}
+	}
 }
 
   // signal 2: selected card
 void p6060bus_device::set_ec2f(int level) {
 	LOG("%s: ec2f=%d\n", machine().describe_context(), level);
+	if (m_select >= 0) {
+		auto card = get_p6060bus_card(m_select);
+		if (card != nullptr)
+		{
+			card->set_ec2f(level);
+		}
+	}
 }
 
 	// ---- from periphery
 
-	// data/state
+// data/state
 void p6060bus_device::set_epd(u8 data) {
 	LOG("%s: epd=%02x\n", machine().describe_context(), data);
 	m_epd = data;
@@ -170,7 +237,7 @@ u8 p6060bus_device::get_epd() {
 	return m_epd;
 }
 
-	// name of periphery
+// name of periphery
 void p6060bus_device::set_epn(u8 name) {
 	LOG("%s: epn=%02x\n", machine().describe_context(), name);
 	m_epn = name;
@@ -180,7 +247,7 @@ u8 p6060bus_device::get_epn() {
 	return m_epn;
 }
 
-	// type of interrupt
+// type of interrupt
 void p6060bus_device::set_ept(u8 type) {
 	LOG("%s: ept=%02x\n", machine().describe_context(), type);
 	m_ept = type;
@@ -221,7 +288,15 @@ void device_p6060bus_card_interface::interface_pre_start()
 	if (!m_p6060bus->started())
 		throw device_missing_dependencies();
 
-	m_p6060bus->add_p6060bus_card(this);
+	int slot;
+	if (std::sscanf(m_p6060bus_slottag, ":sl%d", &slot) < 1) {
+		fatalerror("Slot tag %s has wrong format for P6060 Bus\n", m_p6060bus_slottag);
+	}
+	if (slot < 1 || slot > P6060_MAXSLOT) {
+		fatalerror("Slot %x out of range for P6060 Bus\n", slot);
+	}
+
+	m_p6060bus->add_p6060bus_card(slot, this);
 }
 
 /*
