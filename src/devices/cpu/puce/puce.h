@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include "bus/p6060/p6060intf.h"
+
 // ======================> puce_device
 
 // Used by core CPU interface
@@ -18,7 +20,17 @@ class puce_device : public cpu_device
 {
 public:
 	// construction/destruction
+	template<typename T>
+	puce_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock, T &&extbus_tag)
+			: puce_device(mconfig, tag, owner, clock)
+	{
+		set_extbus(std::forward<T>(extbus_tag));
+	};
+
 	puce_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
+
+	// inline configuration
+	template <typename T> void set_extbus(T &&tag) { m_extbus.set_tag(std::forward<T>(tag)); }
 
 	// device-level overrides
 	virtual void device_start() override ATTR_COLD;
@@ -39,6 +51,9 @@ public:
 
 	// device_state_interface overrides
 	virtual void state_string_export(const device_state_entry &entry, std::string &str) const override;
+
+	// references
+	required_device<p6060bus_interface> m_extbus;
 
 	// address spaces
 	address_space_config m_program_config;

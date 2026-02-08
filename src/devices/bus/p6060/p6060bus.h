@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "p6060intf.h"
 #include "cpu/puce/puce.h"
 
 //**************************************************************************
@@ -61,7 +62,7 @@ DECLARE_DEVICE_TYPE(P6060BUS_SLOT, p6060bus_slot_device)
 
 // ======================> p6060bus_device
 
-class p6060bus_device : public device_t
+class p6060bus_device : public device_t, public p6060bus_interface
 {
 public:
 	// construction/destruction
@@ -79,46 +80,46 @@ public:
 	void add_p6060bus_card(device_p6060bus_card_interface *card);
 	device_p6060bus_card_interface *get_p6060bus_card();
 
-	// ---- from CPU
+// ---- from CPU
 
 	// command/data
-	void set_ecd(u16 data);
-	u16 get_ecd();
+	virtual void set_ecd(u16 data) override;
+	virtual u16 get_ecd() override;
 
   // reset: all cards
-	void set_ecor(int level);
+	virtual void set_ecor(int level) override;
 
 	// select: in priority order to all cards
-	bool strobe_ecos();
+	virtual bool strobe_ecos() override;
 
   // transmit/sync: selected card
-	void strobe_ecot();
+	virtual void strobe_ecot() override;
 
   // command (includes ecot): selected card
-	void strobe_ecoc();
+	virtual void strobe_ecoc() override;
 
   // finish: selected card
-	void strobe_ecof();
+	virtual void strobe_ecof() override;
 
   // signal 1: selected card
-	void set_ec1f(int level);
+	virtual void set_ec1f(int level) override;
 
   // signal 2: selected card
-	void set_ec2f(int level);
+	virtual void set_ec2f(int level) override;
 
 	// ---- from periphery
 
 	// data/state
-	void set_epd(u8 data);
-	u8 get_epd();
+	virtual void set_epd(u8 data) override;
+	virtual u8 get_epd() override;
 
 	// name of periphery
-	void set_epn(u8 name);
-	u8 get_epn();
+	virtual void set_epn(u8 name) override;
+	virtual u8 get_epn() override;
 
 	// type of interrupt
-	void set_ept(u8 type);
-	u8 get_ept();
+	virtual void set_ept(u8 type) override;
+	virtual u8 get_ept() override;
 
 protected:
 	p6060bus_device(const machine_config &mconfig, device_type type, const char *tag, device_t *owner, uint32_t clock);
@@ -132,10 +133,10 @@ protected:
 
 	device_p6060bus_card_interface *m_device;
 
-	u16 ecd;
-	u8 epd;
-	u8 epn;
-	u8 ept;
+	u16 m_ecd;
+	u8 m_epd;
+	u8 m_epn;
+	u8 m_ept;
 	// should ec1f and ec2f be state?
 };
 

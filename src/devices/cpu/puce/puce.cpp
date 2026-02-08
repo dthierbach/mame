@@ -42,6 +42,7 @@ puce_device::puce_device(const machine_config &mconfig, const char *tag, device_
 puce_device::puce_device(const machine_config &mconfig, device_type type, const char *tag, device_t *owner, uint32_t clock) :
 	cpu_device(mconfig, type, tag, owner, clock),
 	// ..., data width, address width, addr shift
+	m_extbus(*this, finder_base::DUMMY_TAG),
 	m_program_config("program", ENDIANNESS_BIG, 16, 16, -1),
 	m_data_config("data", ENDIANNESS_BIG, 8, 16, 0)
 {

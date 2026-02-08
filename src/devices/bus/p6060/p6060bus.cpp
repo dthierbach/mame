@@ -9,6 +9,9 @@
 #include "emu.h"
 #include "p6060bus.h"
 
+#define VERBOSE (1)
+#include "logmacro.h"
+
 //**************************************************************************
 //  GLOBAL VARIABLES
 //**************************************************************************
@@ -107,6 +110,87 @@ void p6060bus_device::add_p6060bus_card(device_p6060bus_card_interface *card)
 {
 	m_device = card;
 }
+
+// ---- from CPU
+
+void p6060bus_device::set_ecd(u16 data) {
+	LOG("%s: ecd=%04x\n", machine().describe_context(), data);
+	m_ecd = data;
+}
+
+u16 p6060bus_device:: get_ecd() {
+	return m_ecd;
+}
+
+  // reset: all cards
+void p6060bus_device::set_ecor(int level) {
+	LOG("%s: ecor\n", machine().describe_context());
+}
+
+	// select: in priority order to all cards
+bool p6060bus_device::strobe_ecos() {
+	LOG("%s: ecos\n", machine().describe_context());
+	return false;
+}
+
+  // transmit/sync: selected card
+void p6060bus_device::strobe_ecot() {
+	LOG("%s: ecot\n", machine().describe_context());
+}
+
+  // command (includes ecot): selected card
+void p6060bus_device::strobe_ecoc() {
+	LOG("%s: ecoc\n", machine().describe_context());
+}
+
+  // finish: selected card
+void p6060bus_device::strobe_ecof() {
+	LOG("%s: ecof\n", machine().describe_context());
+}
+
+  // signal 1: selected card
+void p6060bus_device::set_ec1f(int level) {
+	LOG("%s: ec1f=%d\n", machine().describe_context(), level);
+}
+
+  // signal 2: selected card
+void p6060bus_device::set_ec2f(int level) {
+	LOG("%s: ec2f=%d\n", machine().describe_context(), level);
+}
+
+	// ---- from periphery
+
+	// data/state
+void p6060bus_device::set_epd(u8 data) {
+	LOG("%s: epd=%02x\n", machine().describe_context(), data);
+	m_epd = data;
+}
+
+u8 p6060bus_device::get_epd() {
+	return m_epd;
+}
+
+	// name of periphery
+void p6060bus_device::set_epn(u8 name) {
+	LOG("%s: epn=%02x\n", machine().describe_context(), name);
+	m_epn = name;
+}
+
+u8 p6060bus_device::get_epn() {
+	return m_epn;
+}
+
+	// type of interrupt
+void p6060bus_device::set_ept(u8 type) {
+	LOG("%s: ept=%02x\n", machine().describe_context(), type);
+	m_ept = type;
+}
+
+u8 p6060bus_device::get_ept() {
+	return m_ept;
+}
+
+// --------
 
 device_p6060bus_card_interface::device_p6060bus_card_interface(const machine_config &mconfig, device_t &device)
 	: device_interface(device, "p6060bus")

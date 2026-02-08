@@ -161,6 +161,8 @@ void p6060_state::p6060(machine_config &config)
 
 	// extbus
 	P6060BUS(config, m_extbus, 0);
+	m_maincpu->set_extbus(m_extbus);
+	m_extbus->set_cpu(m_maincpu);
 	/*
 	A2BUS_SLOT(config, "sl0", XTAL(14'318'181) / 2, m_a2bus, apple2_slot0_cards, "lang");
 	A2BUS_SLOT(config, "sl1", XTAL(14'318'181) / 2, m_a2bus, apple2_cards, nullptr);
