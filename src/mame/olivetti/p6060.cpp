@@ -9,6 +9,7 @@
 #include "emu.h"
 
 #include "cpu/puce/puce.h"
+#include "bus/p6060/p6060bus.h"
 #include "machine/timer.h"
 
 #include "screen.h"
@@ -27,6 +28,7 @@ namespace {
 //**************************************************************************
 
 #define P6060_CPU_TAG "maincpu"
+#define P6060_BUS_TAG "extbus"
 
 #define DISPLAY_WIDTH 222
 #define DISPLAY_HEIGHT 7
@@ -37,6 +39,7 @@ public:
 	p6060_state(const machine_config &mconfig, device_type type, const char *tag)
 		: driver_device(mconfig, type, tag)
 		, m_maincpu(*this, P6060_CPU_TAG)
+		, m_extbus(*this, P6060_BUS_TAG)
 		, m_screen(*this, "screen")
 		, m_buttons(*this, "BUTTONS")
 	{ }
@@ -53,6 +56,7 @@ protected:
 
 private:
 	required_device<puce_device> m_maincpu;
+	required_device<p6060bus_device> m_extbus;
 	required_device<screen_device> m_screen;
 	required_ioport m_buttons;
 
@@ -154,6 +158,19 @@ void p6060_state::p6060(machine_config &config)
 	PUCE(config, m_maincpu, 1_MHz_XTAL);
 	m_maincpu->set_addrmap(AS_PROGRAM, &p6060_state::program_mem_map);
 	m_maincpu->set_addrmap(AS_DATA, &p6060_state::data_mem_map);
+
+	// extbus
+	P6060BUS(config, m_extbus, 0);
+	/*
+	A2BUS_SLOT(config, "sl0", XTAL(14'318'181) / 2, m_a2bus, apple2_slot0_cards, "lang");
+	A2BUS_SLOT(config, "sl1", XTAL(14'318'181) / 2, m_a2bus, apple2_cards, nullptr);
+	A2BUS_SLOT(config, "sl2", XTAL(14'318'181) / 2, m_a2bus, apple2_cards, nullptr);
+	A2BUS_SLOT(config, "sl3", XTAL(14'318'181) / 2, m_a2bus, apple2_cards, nullptr);
+	A2BUS_SLOT(config, "sl4", XTAL(14'318'181) / 2, m_a2bus, apple2_cards, "mockingboard");
+	A2BUS_SLOT(config, "sl5", XTAL(14'318'181) / 2, m_a2bus, apple2_cards, nullptr);
+	A2BUS_SLOT(config, "sl6", XTAL(14'318'181) / 2, m_a2bus, apple2_cards, "diskiing");
+	A2BUS_SLOT(config, "sl7", XTAL(14'318'181) / 2, m_a2bus, apple2_cards, nullptr);
+  */
 
 	// screen
 	// Burroughs SSD0132 Plasma Display, 222x7

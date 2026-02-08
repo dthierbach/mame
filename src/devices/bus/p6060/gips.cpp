@@ -23,7 +23,6 @@ protected:
 	virtual void device_start() override ATTR_COLD;
 
 private:
-	std::unique_ptr<u8[]> m_ram;
 };
 
 p6060bus_gips_device::p6060bus_gips_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock)
@@ -34,11 +33,6 @@ p6060bus_gips_device::p6060bus_gips_device(const machine_config &mconfig, const 
 
 void p6060bus_gips_device::device_start()
 {
-	m_ram = std::make_unique<u8[]>(0x4000);
-
-	install_bank(0x2000, 0x5fff, &m_ram[0]);
-
-	save_pointer(NAME(m_ram), 0x4000);
 }
 
 } // anonymous namespace

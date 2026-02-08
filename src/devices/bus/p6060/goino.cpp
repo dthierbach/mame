@@ -34,18 +34,18 @@ private:
 
 	required_ioport m_dips;
 	required_device<screen_device> m_screen;
-	std::unique_ptr<u8[]> m_ram;
-	bool m_installed;
 };
 
 void p6060bus_goino_device::device_add_mconfig(machine_config &config)
 {
+	/*
 	SCREEN(config, m_screen, SCREEN_TYPE_RASTER);
 	m_screen->set_screen_update(FUNC(p6060bus_goino_device::screen_update));
 	m_screen->set_raw(8_MHz_XTAL, 512, 0, 320, 260, 0, 200);
 	m_screen->set_palette("palette");
 
 	PALETTE(config, "palette", palette_device::MONOCHROME);
+	*/
 }
 
 static INPUT_PORTS_START( dips )
@@ -69,29 +69,20 @@ p6060bus_goino_device::p6060bus_goino_device(const machine_config &mconfig, cons
 	, device_p6060bus_card_interface(mconfig, *this)
 	, m_dips(*this, "DIPS")
 	, m_screen(*this, "screen")
-	, m_installed(false)
 {
 }
 
 void p6060bus_goino_device::device_start()
 {
-	m_ram = std::make_unique<u8[]>(0x2000);
-
-	save_pointer(NAME(m_ram), 0x2000);
 }
 
 void p6060bus_goino_device::device_reset()
 {
-	if (!m_installed)
-	{
-		const u16 base = m_dips->read();
-		install_bank(base, base + 0x1fff, &m_ram[0]);
-		m_installed = true;
-	}
 }
 
 u32 p6060bus_goino_device::screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect)
 {
+	/*
 	auto const vram8 = &m_ram[0];
 
 	for (int y = 0; y < 200; y++)
@@ -111,6 +102,7 @@ u32 p6060bus_goino_device::screen_update(screen_device &screen, bitmap_ind16 &bi
 			*scanline++ = BIT(pixels, 0);
 		}
 	}
+	*/
 	return 0;
 }
 

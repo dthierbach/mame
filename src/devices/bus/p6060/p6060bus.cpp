@@ -27,7 +27,7 @@ template class device_finder<device_p6060bus_card_interface, true>;
 //  p6060bus_slot_device - constructor
 //-------------------------------------------------
 p6060bus_slot_device::p6060bus_slot_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock)
-	: p6060bus_slot_device(mconfig, p6060BUS_SLOT, tag, owner, clock)
+	: p6060bus_slot_device(mconfig, P6060BUS_SLOT, tag, owner, clock)
 {
 }
 
@@ -58,7 +58,7 @@ void p6060bus_slot_device::device_start()
 //  GLOBAL VARIABLES
 //**************************************************************************
 
-DEFINE_DEVICE_TYPE(p6060BUS, p6060bus_device, "p6060bus", "P6060 Card Bus")
+DEFINE_DEVICE_TYPE(P6060BUS, p6060bus_device, "p6060bus", "P6060 Card Bus")
 
 //**************************************************************************
 //  LIVE DEVICE
@@ -69,15 +69,13 @@ DEFINE_DEVICE_TYPE(p6060BUS, p6060bus_device, "p6060bus", "P6060 Card Bus")
 //-------------------------------------------------
 
 p6060bus_device::p6060bus_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock)
-	: p6060bus_device(mconfig, p6060BUS, tag, owner, clock)
+	: p6060bus_device(mconfig, P6060BUS, tag, owner, clock)
 {
 }
 
 p6060bus_device::p6060bus_device(const machine_config &mconfig, device_type type, const char *tag, device_t *owner, uint32_t clock)
 	: device_t(mconfig, type, tag, owner, clock)
 	, m_space(*this, finder_base::DUMMY_TAG, -1)
-	, m_out_irq_cb(*this)
-	, m_out_nmi_cb(*this)
 	, m_device(nullptr)
 {
 }
@@ -110,31 +108,6 @@ void p6060bus_device::add_p6060bus_card(device_p6060bus_card_interface *card)
 	m_device = card;
 }
 
-void p6060bus_device::set_irq_line(int state)
-{
-	m_out_irq_cb(state);
-}
-
-void p6060bus_device::set_nmi_line(int state)
-{
-	m_out_nmi_cb(state);
-}
-
-void p6060bus_device::install_device(offs_t start, offs_t end, read8sm_delegate rhandler, write8sm_delegate whandler)
-{
-	m_space->install_readwrite_handler(start, end, rhandler, whandler);
-}
-
-void p6060bus_device::install_bank(offs_t start, offs_t end, uint8_t *data)
-{
-//  printf("install_bank: %s @ %x->%x\n", tag, start, end);
-	m_space->install_ram(start, end, data);
-}
-
-// interrupt request from p6060bus card
-void p6060bus_device::irq_w(int state) { m_out_irq_cb(state); }
-void p6060bus_device::nmi_w(int state) { m_out_nmi_cb(state); }
-
 device_p6060bus_card_interface::device_p6060bus_card_interface(const machine_config &mconfig, device_t &device)
 	: device_interface(device, "p6060bus")
 	, m_p6060bus_finder(device, finder_base::DUMMY_TAG), m_p6060bus(nullptr)
@@ -165,16 +138,6 @@ void device_p6060bus_card_interface::interface_pre_start()
 		throw device_missing_dependencies();
 
 	m_p6060bus->add_p6060bus_card(this);
-}
-
-void device_p6060bus_card_interface::install_device(offs_t start, offs_t end, read8sm_delegate rhandler, write8sm_delegate whandler)
-{
-	m_p6060bus->install_device(start, end, rhandler, whandler);
-}
-
-void device_p6060bus_card_interface::install_bank(offs_t start, offs_t end, uint8_t *data)
-{
-	m_p6060bus->install_bank(start, end, data);
 }
 
 /*

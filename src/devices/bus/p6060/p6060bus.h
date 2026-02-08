@@ -54,32 +54,60 @@ protected:
 };
 
 // device type definition
-DECLARE_DEVICE_TYPE(p6060BUS_SLOT, p6060bus_slot_device)
+DECLARE_DEVICE_TYPE(P6060BUS_SLOT, p6060bus_slot_device)
 
 
 // ======================> p6060bus_device
+
 class p6060bus_device : public device_t
 {
 public:
 	// construction/destruction
 	p6060bus_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
-	// inline configuration
-	template <typename T> void set_space(T &&tag, int spacenum) { m_space.set_tag(std::forward<T>(tag), spacenum); }
-	auto out_irq_callback() { return m_out_irq_cb.bind(); }
-	auto out_nmi_callback() { return m_out_nmi_cb.bind(); }
-
 	void add_p6060bus_card(device_p6060bus_card_interface *card);
 	device_p6060bus_card_interface *get_p6060bus_card();
 
-	void set_irq_line(int state);
-	void set_nmi_line(int state);
+	// ---- from CPU
 
-	void install_device(offs_t start, offs_t end, read8sm_delegate rhandler, write8sm_delegate whandler);
-	void install_bank(offs_t start, offs_t end, uint8_t *data);
+	// command/data
+	void set_ecd(u16 data);
+	u16 get_ecd();
 
-	void irq_w(int state);
-	void nmi_w(int state);
+  // reset: all cards
+	void set_ecor(int level);
+
+	// select: in priority order to all cards
+	bool strobe_ecos();
+
+  // transmit/sync: selected card
+	void strobe_ecot();
+
+  // command (includes ecot): selected card
+	void strobe_ecoc();
+
+  // finish: selected card
+	void strobe_ecof();
+
+  // signal 1: selected card
+	void set_ec1f(int level);
+
+  // signal 2: selected card
+	void set_ec2f(int level);
+
+	// ---- from periphery
+
+	// data/state
+	void set_epd(u8 data);
+	u8 get_epd();
+
+	// name of periphery
+	void set_epn(u8 name);
+	u8 get_epn();
+
+	// type of interrupt
+	void set_ept(u8 type);
+	u8 get_ept();
 
 protected:
 	p6060bus_device(const machine_config &mconfig, device_type type, const char *tag, device_t *owner, uint32_t clock);
@@ -91,15 +119,18 @@ protected:
 	// internal state
 	required_address_space m_space;
 
-	devcb_write_line    m_out_irq_cb;
-	devcb_write_line    m_out_nmi_cb;
-
 	device_p6060bus_card_interface *m_device;
+
+	u16 ecd;
+	u8 epd;
+	u8 epn;
+	u8 ept;
+	// should ec1f and ec2f be state?
 };
 
 
 // device type definition
-DECLARE_DEVICE_TYPE(p6060BUS, p6060bus_device)
+DECLARE_DEVICE_TYPE(P6060BUS, p6060bus_device)
 
 // ======================> device_p6060bus_card_interface
 
@@ -116,13 +147,14 @@ public:
 	template <typename T> void set_onboard(T &&p6060bus) { m_p6060bus_finder.set_tag(std::forward<T>(p6060bus)); m_p6060bus_slottag = device().tag(); }
 
 protected:
-	void raise_slot_irq() { m_p6060bus->set_irq_line(ASSERT_LINE); }
-	void lower_slot_irq() { m_p6060bus->set_irq_line(CLEAR_LINE); }
-	void raise_slot_nmi() { m_p6060bus->set_nmi_line(ASSERT_LINE); }
-	void lower_slot_nmi() { m_p6060bus->set_nmi_line(CLEAR_LINE); }
 
-	void install_device(offs_t start, offs_t end, read8sm_delegate rhandler, write8sm_delegate whandler);
-	void install_bank(offs_t start, offs_t end, uint8_t *data);
+	void set_ecor(int level);
+	bool strobe_ecos();
+	void strobe_ecot();
+	void strobe_ecoc();
+	void strobe_ecof();
+	void set_ec1f(int level);
+	void set_ec2f(int level);
 
 	device_p6060bus_card_interface(const machine_config &mconfig, device_t &device);
 
