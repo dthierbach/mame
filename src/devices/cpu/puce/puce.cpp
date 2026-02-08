@@ -979,7 +979,7 @@ inline void puce_device::op_slsb(u8 u) {
 	RB(u) = tmp.b.l;
 }
 
-// -------- external periphery
+// -------- external peripherial
 
 inline void puce_device::op_comx(u8 u) {
   //  C%d
@@ -987,99 +987,268 @@ inline void puce_device::op_comx(u8 u) {
 	switch(u) {
 	case 0:
 		m_lvl = 4;
+		m_extbus->set_ecor(CLEAR_LINE);
 		break;
 	case 1:
 		// TODO: what if level is 1 or 2? Stay in level?
 		// TODO: wait?
 		m_lvl = 3;
 		break;
+	case 3:
+		m_extbus->set_ecor(ASSERT_LINE);
+		break;
+	case 4:
+		m_extbus->strobe_ecot();
+		break;
+	case 7:
+		m_extbus->set_ec1f(ASSERT_LINE);
+		break;
+	case 8:
+		m_extbus->set_ec1f(CLEAR_LINE);
+		break;
+	case 9:
+		m_extbus->set_ec2f(ASSERT_LINE);
+		break;
+	case 10:
+		m_extbus->set_ec2f(CLEAR_LINE);
+		break;
 	default:
 	  op_illegal(NULL);
 	}
 }
 
-// ======== -------- not implemented -------- ========
-
-inline void puce_device::op_emi(u8 u) {
-  //[M%d] <- data.A
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_mei(u8 u) {
-  //data.A <- [M%d]
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_meip(u8 u) {
-  //data.A <- [M%d++]
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_meim(u8 u) {
-  //data.A <- [M%d--]
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_emim(u8 u) {
-  //[M%d--] <- data.A
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_emip(u8 u) {
-  //[M%d++] <- data.A
-  //no DI        
-  op_illegal(NULL);
+inline void puce_device::op_eda(u8 u) {
+  //A%d <- data.A
+  //no DI
+	RA(u) = m_extbus->get_epd();
 }
 
 inline void puce_device::op_edb(u8 u) {
   //B%d <- data.A
-  //no DI        
-  op_illegal(NULL);
+  //no DI
+	RB(u) = m_extbus->get_epd();
+}
+
+inline void puce_device::op_emi(u8 u) {
+  //[M%d] <- data.A
+  //no DI
+	u8 data = m_extbus->get_epd();
+	if (u <= 12) {
+		m_data->write_byte(RL(u), data);
+	} else {
+		m_data->write_byte(RA(u), data);
+	}
+}
+
+inline void puce_device::op_emim(u8 u) {
+  //[M%d--] <- data.A
+  //no DI
+	u8 data = m_extbus->get_epd();
+	if (u <= 12) {
+		m_data->write_byte(RL(u), data);
+		RL(u)--;
+	} else {
+		m_data->write_byte(RA(u), data);
+		RA(u)--;
+	}
+}
+
+inline void puce_device::op_emip(u8 u) {
+  //[M%d++] <- data.A
+  //no DI
+	u8 data = m_extbus->get_epd();
+	if (u <= 12) {
+		m_data->write_byte(RL(u), data);
+		RL(u)++;
+	} else {
+		m_data->write_byte(RA(u), data);
+		RA(u)++;
+	}
+}
+
+inline void puce_device::op_esi(u8 u) {
+  //[M%d] <- data/type
+  //no DI
+	PAIR16 data;
+	data.b.l = m_extbus->get_epd();
+	data.b.h = m_extbus->get_ept();
+	if (u <= 12) {
+		m_program->write_word(RL(u), data.w);
+	} else {
+		m_program->write_word(RA(u), data.w);
+	}
+	m_extbus->strobe_ecot();
+}
+
+inline void puce_device::op_esim(u8 u) {
+  //[M%d--] <- data/type
+  //no DI
+	PAIR16 data;
+	data.b.l = m_extbus->get_epd();
+	data.b.h = m_extbus->get_ept();
+	if (u <= 12) {
+		m_program->write_word(RL(u), data.w);
+		RL(u)--;
+	} else {
+		m_program->write_word(RA(u), data.w);
+		RA(u)--;
+	}
+	m_extbus->strobe_ecot();
+}
+
+inline void puce_device::op_esip(u8 u) {
+  //[M%d++] <- data/type
+  //no DI
+	PAIR16 data;
+	data.b.l = m_extbus->get_epd();
+	data.b.h = m_extbus->get_ept();
+	if (u <= 12) {
+		m_program->write_word(RL(u), data.w);
+		RL(u)++;
+	} else {
+		m_program->write_word(RA(u), data.w);
+		RA(u)++;
+	}
+	m_extbus->strobe_ecot();
 }
 
 inline void puce_device::op_entl(u8 u) {
   //A%d <- name, B%d <- type
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_edc(u8 u) {
-  //L%d.MMM--, ECOF if zero
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_ese(u8 u) {
-  //sel <- [M%d]
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_etib(u8 u) {
-  //B%d <- type
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_eco(u8 u) {
-  //cmd <- [M%d]
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_eda(u8 u) {
-  //A%d <- data.A
-  //no DI        
-  op_illegal(NULL);
+  //no DI
+	RA(u) = m_extbus->get_epn();
+	RB(u) = m_extbus->get_ept();
 }
 
 inline void puce_device::op_enua(u8 u) {
   //A%d <- name
+  //no DI
+	RA(u) = m_extbus->get_epn();
+}
+
+inline void puce_device::op_etib(u8 u) {
+  //B%d <- type
+  //no DI
+	RB(u) = m_extbus->get_ept();
+}
+
+inline void puce_device::op_mei(u8 u) {
+  //data.A <- [M%d]
+  //no DI, no ECOT
+	if (u <= 12) {
+		m_extbus->set_ecd(m_data->read_byte(RL(u)));
+	} else {
+		m_extbus->set_ecd(m_data->read_byte(RA(u)));
+	}
+}
+
+inline void puce_device::op_meim(u8 u) {
+  //data.A <- [M%d--]
+  //no DI, no ECOT
+	if (u <= 12) {
+		m_extbus->set_ecd(m_data->read_byte(RL(u)));
+		RL(u)--;
+	} else {
+		m_extbus->set_ecd(m_data->read_byte(RA(u)));
+		RA(u)--;
+	}
+}
+
+inline void puce_device::op_meip(u8 u) {
+  //data.A <- [M%d++]
+  //no DI, no ECOT
+	if (u <= 12) {
+		m_extbus->set_ecd(m_data->read_byte(RL(u)));
+		RL(u)++;
+	} else {
+		m_extbus->set_ecd(m_data->read_byte(RA(u)));
+		RA(u)++;
+	}
+}
+
+inline void puce_device::op_sei(u8 u) {
+  //data.BA <- [%Md]
+  //no DI
+	if (u <= 12) {
+		m_extbus->set_ecd(m_program->read_word(RL(u)));
+		RL(u)--;
+	} else {
+		m_extbus->set_ecd(m_program->read_word(RA(u)));
+		RA(u)--;
+	}
+	m_extbus->strobe_ecot();
+}
+
+inline void puce_device::op_seim(u8 u) {
+  //data.BA <- [M%d--]
+  //no DI
+	if (u <= 12) {
+		m_extbus->set_ecd(m_program->read_word(RL(u)));
+		RL(u)--;
+	} else {
+		m_extbus->set_ecd(m_program->read_word(RA(u)));
+		RA(u)--;
+	}
+	m_extbus->strobe_ecot();
+}
+
+inline void puce_device::op_seip(u8 u) {
+  //data.BA <- [{M%d++]
+  //no DI
+	if (u <= 12) {
+		m_extbus->set_ecd(m_program->read_word(RL(u)));
+		RL(u)++;
+	} else {
+		m_extbus->set_ecd(m_program->read_word(RA(u)));
+		RA(u)++;
+	}
+	m_extbus->strobe_ecot();
+}
+
+inline void puce_device::op_dea(u8 u) {
+  //data.B <- B%d, A%d <- data.A
+  //no DI
+	// does it keep old value of databus? do it for now...
+	// if yes, maybe move functionality to bus.
+	PAIR16 data;
+	data.w = m_extbus->get_ecd();
+	data.b.h = RB(u);
+	m_extbus->set_ecd(data.w);
+	m_extbus->strobe_ecot();
+	RA(u) = m_extbus->get_epd();
+}
+
+inline void puce_device::op_dae(u8 u) {
+  //data.BA <- L%d
+  //no DI
+	m_extbus->set_ecd(RL(u));
+	m_extbus->strobe_ecot();
+}
+
+inline void puce_device::op_cae(u8 u) {
+  //cmd.BA <- L%d
+  //no DI
+	m_extbus->set_ecd(RL(u));
+	m_extbus->strobe_ecoc();
+}
+
+inline void puce_device::op_ese(u8 u) {
+  //sel <- [M%d]
+  //no DI
+	op_mei(u);
+	m_extbus->strobe_ecos();
+}
+
+inline void puce_device::op_eco(u8 u) {
+  //cmd <- [M%d]
+  //no DI
+	op_mei(u);
+	m_extbus->strobe_ecoc();
+}
+
+// ======== -------- not implemented -------- ========
+
+inline void puce_device::op_edc(u8 u) {
+  //L%d.MMM--, ECOF if zero
   //no DI        
   op_illegal(NULL);
 }
@@ -1096,68 +1265,14 @@ inline void puce_device::op_tdma(u8 u) {
   op_illegal(NULL);
 }
 
-inline void puce_device::op_esi(u8 u) {
-  //[M%d] <- data/type
-  //no DI        
-  op_illegal(NULL);
-}
-
 inline void puce_device::op_tdpa(u8 u) {
   //A%d <- con.P
   //no DI        
   op_illegal(NULL);
 }
 
-inline void puce_device::op_esip(u8 u) {
-  //[M%d++] <- data/type
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_esim(u8 u) {
-  //[M%d--] <- data/type
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_sei(u8 u) {
-  //data.BA <- [%Md]
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_seip(u8 u) {
-  //data.BA <- [{M%d++]
-  //no DI        
-  op_illegal(NULL);
-}
-
 inline void puce_device::op_tabc(u8 u, u8 v) {
   //con <- A%d,B%d
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_dea(u8 u) {
-  //data.B <- B%d, A%d <- data.A
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_dae(u8 u) {
-  //data.BA <- L%d
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_cae(u8 u) {
-  //cmd.BA <- L%d
-  //no DI        
-  op_illegal(NULL);
-}
-
-inline void puce_device::op_seim(u8 u) {
-  //data.BA <- [M%d--]
   //no DI        
   op_illegal(NULL);
 }
