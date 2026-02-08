@@ -46,8 +46,8 @@ So:
 	sl6
 
 in that priority
-  GOINO fix?
-	Floppy fix?
+  sl13 GOINO fix?
+	sl12/11 Floppy fix?
 
 Variants
   GOINO (pos 13)

@@ -10,6 +10,7 @@
 
 #include "cpu/puce/puce.h"
 #include "bus/p6060/p6060bus.h"
+#include "bus/p6060/cards.h"
 #include "machine/timer.h"
 
 #include "screen.h"
@@ -163,6 +164,18 @@ void p6060_state::p6060(machine_config &config)
 	P6060BUS(config, m_extbus, 0);
 	m_maincpu->set_extbus(m_extbus);
 	m_extbus->set_cpu(m_maincpu);
+
+	P6060BUS_SLOT(config, "sl13", 0, m_extbus, p6060_cards, "goino");
+	P6060BUS_SLOT(config, "sl1", 0, m_extbus, p6060_cards, nullptr);
+	/*
+	TODO: goino and lfoppy in fixed position
+	P6060BUS(config, "bus", 0);
+	P6060BUS_SLOT(config, "sl1", 0, "bus", p6060_cards, nullptr);
+	P6060BUS_SLOT(config, "sl2", 0, "bus", p6060_cards, nullptr);
+	P6060BUS_SLOT(config, "sl3", 0, "bus", p6060_cards, nullptr);
+	P6060BUS_SLOT(config, "sl4", 0, "bus", p6060_cards, nullptr);
+	P6060BUS_SLOT(config, "sl5", 0, "bus", p6060_cards, nullptr);
+  */
 	/*
 	A2BUS_SLOT(config, "sl0", XTAL(14'318'181) / 2, m_a2bus, apple2_slot0_cards, "lang");
 	A2BUS_SLOT(config, "sl1", XTAL(14'318'181) / 2, m_a2bus, apple2_cards, nullptr);
@@ -191,15 +204,6 @@ void p6060_state::p6060(machine_config &config)
 
 	SPEAKER(config, "mono").front_center();
 
-	/*
-	TODO: goino and lfoppy in fixed position
-	P6060BUS(config, "bus", 0);
-	P6060BUS_SLOT(config, "sl1", 0, "bus", p6060_cards, nullptr);
-	P6060BUS_SLOT(config, "sl2", 0, "bus", p6060_cards, nullptr);
-	P6060BUS_SLOT(config, "sl3", 0, "bus", p6060_cards, nullptr);
-	P6060BUS_SLOT(config, "sl4", 0, "bus", p6060_cards, nullptr);
-	P6060BUS_SLOT(config, "sl5", 0, "bus", p6060_cards, nullptr);
-  */
 
 }
 

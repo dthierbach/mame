@@ -124,28 +124,28 @@ u16 p6060bus_device:: get_ecd() {
 
   // reset: all cards
 void p6060bus_device::set_ecor(int level) {
-	LOG("%s: ecor\n", machine().describe_context());
+	LOG("%s: ecor=%d reset\n", machine().describe_context(), level);
 }
 
 	// select: in priority order to all cards
 bool p6060bus_device::strobe_ecos() {
-	LOG("%s: ecos\n", machine().describe_context());
+	LOG("%s: ecos select\n", machine().describe_context());
 	return false;
 }
 
   // transmit/sync: selected card
 void p6060bus_device::strobe_ecot() {
-	LOG("%s: ecot\n", machine().describe_context());
+	LOG("%s: ecot transmit\n", machine().describe_context());
 }
 
   // command (includes ecot): selected card
 void p6060bus_device::strobe_ecoc() {
-	LOG("%s: ecoc\n", machine().describe_context());
+	LOG("%s: ecoc command\n", machine().describe_context());
 }
 
   // finish: selected card
 void p6060bus_device::strobe_ecof() {
-	LOG("%s: ecof\n", machine().describe_context());
+	LOG("%s: ecof finish\n", machine().describe_context());
 }
 
   // signal 1: selected card
