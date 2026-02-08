@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "cpu/puce/puce.h"
+
 //**************************************************************************
 //  TYPE DEFINITIONS
 //**************************************************************************
@@ -63,7 +65,16 @@ class p6060bus_device : public device_t
 {
 public:
 	// construction/destruction
+	template<typename T>
+	p6060bus_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock, T &&cpu_tag)
+			: p6060bus_device(mconfig, tag, owner, clock)
+	{
+		set_cpu(std::forward<T>(cpu_tag));
+	}
 	p6060bus_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
+
+	// inline configuration
+	template <typename T> void set_cpu(T &&tag) { m_maincpu.set_tag(std::forward<T>(tag)); }
 
 	void add_p6060bus_card(device_p6060bus_card_interface *card);
 	device_p6060bus_card_interface *get_p6060bus_card();
@@ -117,7 +128,7 @@ protected:
 	virtual void device_reset() override ATTR_COLD;
 
 	// internal state
-	required_address_space m_space;
+	required_device<puce_device> m_maincpu;
 
 	device_p6060bus_card_interface *m_device;
 

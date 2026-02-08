@@ -75,7 +75,7 @@ p6060bus_device::p6060bus_device(const machine_config &mconfig, const char *tag,
 
 p6060bus_device::p6060bus_device(const machine_config &mconfig, device_type type, const char *tag, device_t *owner, uint32_t clock)
 	: device_t(mconfig, type, tag, owner, clock)
-	, m_space(*this, finder_base::DUMMY_TAG, -1)
+	, m_maincpu(*this, finder_base::DUMMY_TAG)
 	, m_device(nullptr)
 {
 }
