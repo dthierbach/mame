@@ -109,20 +109,9 @@ void p6060bus_goino_device::device_start()
 {
 	LOG("%s: device_start\n", machine().describe_context());
 	m_bell_timer = timer_alloc(FUNC(p6060bus_goino_device::bell_off), this);
+	// creates new outputs here.
+	// when layout is rendered later, state is overwritten with -1.
 	m_lamps.resolve();
-	for (int i = 0; i < 12; i++) {
-		auto p = m_lamps[i];
-		if (p) {
-			LOG("%s:   lamp %d nonnull %p\n", machine().describe_context(), i, p);
-		} else {
-			LOG("%s:   lamp %d null %p\n", machine().describe_context(), i, p);
-		}
-	}
-	for (int i = 0; i < 12; i++) {
-		LOG("%s:   lamp %d value %d\n", machine().describe_context(), i, m_lamps[i]);
-		m_lamps[i] = 1;
-		LOG("%s:   lamp %d value %d\n", machine().describe_context(), i, m_lamps[i]);
-	}
 	// m_keyboard_cb.resolve_safe();
 }
 
@@ -191,6 +180,10 @@ void p6060bus_goino_device::lights_shiftin(int value) {
 			m_bell_timer->reset(attotime::from_msec(200)); // Condy p.14: 200ms
 		}
 		LOG("%s: lights %04x\n", machine().describe_context(), m_lights_buffer);
+		for (int i = 0; i < 12; i++) {
+			m_lamps[i] = m_lights_shift & 1;
+			m_lights_shift = m_lights_shift >> 1;
+		}
 		m_lights_shift = 0;
 		m_lights_buffer = 0;
 	}

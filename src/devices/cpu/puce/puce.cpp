@@ -55,7 +55,7 @@ void puce_device::device_start()
 	m_data = &space(AS_DATA);
 
 	// register our state for the debugger
-	state_add(PUCE_LVL,        "LVL",       m_lvl);
+	state_add(PUCE_LVL,        "LVL",       m_lvl).mask(0x7);
 	state_add(STATE_GENPC,     "GENPC",     m_pc); // .noshow();
 	state_add(STATE_GENPCBASE, "CURPC",     m_pc); // .noshow();
 	state_add(STATE_GENFLAGS,  "GENFLAGS",  m_di).callexport().formatstr("%9s");
@@ -430,7 +430,7 @@ inline void puce_device::op_lmip(u8 u, u8 v) {
 }
 
 inline void puce_device::op_lpmip(u8 u, u8 v) {
-  //[M%d++] := ++L%d
+  //[M%d++] := L%d+1
 	// L not actually incremented? so L%d+1 instead of ++L%d ??
   //no DI
 	u16 addr = calc_addrp(u);
@@ -726,9 +726,11 @@ inline void puce_device::op_sab(u8 u, u8 v) {
 }
 
 inline void puce_device::op_sll(u8 u, u8 v) {
-  //L%d <-> L%d
+  //L%d <x> L%d
   //no DI
-	u16 tmp = RL(u); RL(u) = RL(v); RL(v) = tmp;
+	u8 tmp;
+	tmp = RA(u); RA(u) = RB(v); RB(v) = tmp;
+	tmp = RA(v); RA(v) = RB(u); RB(u) = tmp;
 }
 
 inline void puce_device::op_sdia(u8 u) {

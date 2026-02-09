@@ -619,7 +619,7 @@ inline void puce_disassembler::decode(std::ostream &stream, u16 pc, u16 opcode)
 		case 0xbc:
 		{
 			dis = string_format("SLL L%02x,L%02x", u, v);
-			com = string_format("L%d <-> L%d", u, v);
+			com = string_format("L%d <x> L%d", u, v);
 			break;
 		}
 		case 0xbd:
@@ -903,7 +903,7 @@ inline void puce_disassembler::decode(std::ostream &stream, u16 pc, u16 opcode)
 		case 0xe2:
 		{
 			dis = string_format("LPMIP M%02x,L%02x", u, v);
-			com = string_format("[M%d++] := ++L%d", u, v);
+			com = string_format("[M%d++] := L%d+1", u, v);
 			break;
 		}
 		case 0xe5:
