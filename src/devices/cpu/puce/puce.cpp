@@ -409,7 +409,7 @@ inline void puce_device::op_bmip(u8 u, u8 v) {
 }
 
 inline void puce_device::op_lmi(u8 u, u8 v) {
-  //[M%d}] := L%d
+  //[M%d] := L%d
   //no DI
 	u16 addr = calc_addr(u);
 	m_program->write_word(addr, RL(v));
@@ -854,7 +854,7 @@ inline void puce_device::op_shda(u8 u) {
   //A%d, DI0 := 0 >> A%d
   //DI0
 	m_di &= 0xfe;
-	m_di |= RA(u);
+	m_di |= (RA(u) & 1);
 	RA(u) = RA(u) >> 1;
 }
 
@@ -862,7 +862,7 @@ inline void puce_device::op_shdb(u8 u) {
   //B%d, DI0 := 0 >> B%d
   //DI0
 	m_di &= 0xfe;
-	m_di |= RB(u);
+	m_di |= (RB(u) & 1);
 	RB(u) = RB(u) >> 1;
 }
 
@@ -873,7 +873,7 @@ inline void puce_device::op_slda(u8 u) {
 	tmp.b.l = RA(u);
 	tmp.b.h = m_di;
 	m_di &= 0xfe;
-	m_di |= RA(u);
+	m_di |= (RA(u) & 1);
 	RA(u) = (tmp.w >> 1) & 0xff;
 }
 
@@ -884,7 +884,7 @@ inline void puce_device::op_sldb(u8 u) {
 	tmp.b.l = RB(u);
 	tmp.b.h = m_di;
 	m_di &= 0xfe;
-	m_di |= RB(u);
+	m_di |= (RB(u) & 1);
 	RB(u) = (tmp.w >> 1) & 0xff;
 }
 

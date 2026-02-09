@@ -110,7 +110,7 @@ inner = {
     0xDD: {'*': ['mlim',  'MLIM M%02x,L%02x',  'uv',  'L%d := [M%d--]',               'vu' , 'no DI        ']},
     0xDE: {'*': ['mlip',  'MLIP M%02x,L%02x',  'uv',  'L%d := [M%d++]',               'vu' , 'no DI        ']},
     0xE0: {0x8: ['esi',   'ESI M%02x',         'u',   '[M%d] <- data/type',           'u'  , 'no DI        ']},
-    0xE1: {'*': ['lmi',   'LMI M%02x,L%02x',   'uv',  '[M%d}] := L%d',                'uv' , 'no DI        ']},
+    0xE1: {'*': ['lmi',   'LMI M%02x,L%02x',   'uv',  '[M%d] := L%d',                'uv' , 'no DI        ']},
     0xE2: {'*': ['lpmip', 'LPMIP M%02x,L%02x', 'uv',  '[M%d++] := L%d+1',             'uv' , 'no DI        ']},
     0xE5: {0xF: ['dcl',   'DCL L%02x',         'u',   'L%d--',                        'u'  , 'DI1 = zero   ']},
     0xE6: {'*': ['or',    'OR A%02x,B%02x',    'uv',  'A%d or B%d',                   'uv' , 'DI1 = zero   ']},

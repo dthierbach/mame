@@ -897,7 +897,7 @@ inline void puce_disassembler::decode(std::ostream &stream, u16 pc, u16 opcode)
 		case 0xe1:
 		{
 			dis = string_format("LMI M%02x,L%02x", u, v);
-			com = string_format("[M%d}] := L%d", u, v);
+			com = string_format("[M%d] := L%d", u, v);
 			break;
 		}
 		case 0xe2:
