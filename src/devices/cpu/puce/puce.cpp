@@ -432,134 +432,72 @@ inline void puce_device::op_lmip(u8 u, u8 v) {
 inline void puce_device::op_lpmip(u8 u, u8 v) {
   //[M%d++] := ++L%d
   //no DI
+	u16 addr = calc_addrp(u);
 	RL(v)++;
-	if (u <= 12) {
-		m_program->write_word(RL(u), RL(v));
-		RL(u)++;
-	} else {
-		m_program->write_word(RA(u), RL(v));
-		RA(u)++;
-	}
+	m_program->write_word(addr, RL(v));
 }
 
 inline void puce_device::op_mai(u8 u, u8 v) {
   //A%d := [M%d]
   //no DI
-	u8 data;
-	if (u <= 12) {
-		data = m_data->read_byte(RL(u));
-	} else {
-		data = m_data->read_byte(RA(u));
-	}
-	RA(v) = data;
+	u16 addr = calc_addr(u);
+	RA(v) = m_data->read_byte(addr);
 }
 
 inline void puce_device::op_maim(u8 u, u8 v) {
   //A%d := [M%d--]
   //no DI
-	u8 data;
-	if (u <= 12) {
-		data = m_data->read_byte(RL(u));
-		RL(u)--;
-	} else {
-		data = m_data->read_byte(RA(u));
-		RA(u)--;
-	}
-	RA(v) = data;
+	u16 addr = calc_addrm(u);
+	RA(v) = m_data->read_byte(addr);
 }
 
 inline void puce_device::op_maip(u8 u, u8 v) {
   //A%d := [M%d++]
   //no DI
-	u8 data;
-	if (u <= 12) {
-		data = m_data->read_byte(RL(u));
-		RL(u)++;
-	} else {
-		data = m_data->read_byte(RA(u));
-		RA(u)++;
-	}
-	RA(v) = data;
+	u16 addr = calc_addrp(u);
+	RA(v) = m_data->read_byte(addr);
 }
 
 inline void puce_device::op_mbi(u8 u, u8 v) {
   //B%d := [M%d]
   //no DI
-	u8 data;
-	if (u <= 12) {
-		data = m_data->read_byte(RL(u));
-	} else {
-		data = m_data->read_byte(RA(u));
-	}
-	RB(v) = data;
+	u16 addr = calc_addr(u);
+	RB(v) = m_data->read_byte(addr);
 }
 
 inline void puce_device::op_mbim(u8 u, u8 v) {
   //B%d := [M%d--]
   //no DI
-	u8 data;
-	if (u <= 12) {
-		data = m_data->read_byte(RL(u));
-		RL(u)--;
-	} else {
-		data = m_data->read_byte(RA(u));
-		RA(u)--;
-	}
-	RB(v) = data;
+	u16 addr = calc_addrm(u);
+	RB(v) = m_data->read_byte(addr);
 }
 
 inline void puce_device::op_mbip(u8 u, u8 v) {
   //B%d := [M%d++]
   //no DI
-	u8 data;
-	if (u <= 12) {
-		data = m_data->read_byte(RL(u));
-		RL(u)++;
-	} else {
-		data = m_data->read_byte(RA(u));
-		RA(u)++;
-	}
-	RB(v) = data;
+	u16 addr = calc_addrp(u);
+	RB(v) = m_data->read_byte(addr);
 }
 
 inline void puce_device::op_mli(u8 u, u8 v) {
   //L%d := [M%d]
   //no DI
-	u16 data;
-	if (u <= 12) {
-		data = m_program->read_word(RL(u));
-	} else {
-		data = m_program->read_word(RA(u));
-	}
-	RL(v) = data;
+	u16 addr = calc_addr(u);
+	RL(v) = m_program->read_word(addr);
 }
 
 inline void puce_device::op_mlim(u8 u, u8 v) {
   //L%d := [M%d--]
   //no DI
-	u16 data;
-	if (u <= 12) {
-		data = m_program->read_word(RL(u));
-		RL(u)--;
-	} else {
-		data = m_program->read_word(RA(u));
-		RA(u)--;
-	}
-	RL(v) = data;
+	u16 addr = calc_addrm(u);
+	RL(v) = m_program->read_word(addr);
 }
 
 inline void puce_device::op_mlip(u8 u, u8 v) {
   //L%d := [M%d++]
   //no DI
-	u16 data;
-	if (u <= 12) {
-		data = m_program->read_word(RL(u));
-		RL(u)++;
-	} else {
-		data = m_program->read_word(RA(u));
-		RA(u)++;
-	}
-	RL(v) = data;
+	u16 addr = calc_addrp(u);
+	RL(v) = m_program->read_word(addr);
 }
 
 // ---- flags

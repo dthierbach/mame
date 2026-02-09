@@ -173,7 +173,7 @@ void p6060bus_goino_device::lights_shiftin(int value) {
 			m_beeper->set_state(1);
 			m_bell_timer->reset(attotime::from_msec(200)); // Condy p.14: 200ms
 		}
-		LOG("%s: lights %02x\n", machine().describe_context(), m_lights_buffer);
+		LOG("%s: lights %04x\n", machine().describe_context(), m_lights_buffer);
 		m_lights_shift = 0;
 		m_lights_buffer = 0;
 	}
