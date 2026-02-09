@@ -76,7 +76,7 @@ private:
 	PAIR16 m_reg[16]; // 16 bit L, 8 bit A and B
 	u16 m_pc; // calculated at begin of execution
   u8 m_di; // flags
-  u8 m_lvl; // 0..3
+  int m_lvl; // 0..3
 
 	// other internal states
 	int m_icount;

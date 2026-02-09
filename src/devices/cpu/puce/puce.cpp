@@ -55,7 +55,7 @@ void puce_device::device_start()
 	m_data = &space(AS_DATA);
 
 	// register our state for the debugger
-	state_add(PUCE_LVL,        "LVL",       m_lvl).mask(0x3);
+	state_add(PUCE_LVL,        "LVL",       m_lvl);
 	state_add(STATE_GENPC,     "GENPC",     m_pc); // .noshow();
 	state_add(STATE_GENPCBASE, "CURPC",     m_pc); // .noshow();
 	state_add(STATE_GENFLAGS,  "GENFLAGS",  m_di).callexport().formatstr("%9s");
@@ -450,105 +450,121 @@ inline void puce_device::op_lpmip(u8 u, u8 v) {
 inline void puce_device::op_mai(u8 u, u8 v) {
   //A%d := [M%d]
   //no DI
+	u8 data;
 	if (u <= 12) {
-		RA(v) = m_data->read_byte(RL(u));
+		data = m_data->read_byte(RL(u));
 	} else {
-		RA(v) = m_data->read_byte(RA(u));
+		data = m_data->read_byte(RA(u));
 	}
+	RA(v) = data;
 }
 
 inline void puce_device::op_maim(u8 u, u8 v) {
   //A%d := [M%d--]
   //no DI
+	u8 data;
 	if (u <= 12) {
-		RA(v) = m_data->read_byte(RL(u));
+		data = m_data->read_byte(RL(u));
 		RL(u)--;
 	} else {
-		RA(v) = m_data->read_byte(RA(u));
+		data = m_data->read_byte(RA(u));
 		RA(u)--;
 	}
+	RA(v) = data;
 }
 
 inline void puce_device::op_maip(u8 u, u8 v) {
   //A%d := [M%d++]
   //no DI
+	u8 data;
 	if (u <= 12) {
-		RA(v) = m_data->read_byte(RL(u));
+		data = m_data->read_byte(RL(u));
 		RL(u)++;
 	} else {
-		RA(v) = m_data->read_byte(RA(u));
+		data = m_data->read_byte(RA(u));
 		RA(u)++;
 	}
+	RA(v) = data;
 }
 
 inline void puce_device::op_mbi(u8 u, u8 v) {
   //B%d := [M%d]
   //no DI
+	u8 data;
 	if (u <= 12) {
-		RB(v) = m_data->read_byte(RL(u));
+		data = m_data->read_byte(RL(u));
 	} else {
-		RB(v) = m_data->read_byte(RA(u));
+		data = m_data->read_byte(RA(u));
 	}
+	RB(v) = data;
 }
 
 inline void puce_device::op_mbim(u8 u, u8 v) {
   //B%d := [M%d--]
   //no DI
+	u8 data;
 	if (u <= 12) {
-		RB(v) = m_data->read_byte(RL(u));
+		data = m_data->read_byte(RL(u));
 		RL(u)--;
 	} else {
-		RB(v) = m_data->read_byte(RA(u));
+		data = m_data->read_byte(RA(u));
 		RA(u)--;
 	}
+	RB(v) = data;
 }
 
 inline void puce_device::op_mbip(u8 u, u8 v) {
   //B%d := [M%d++]
   //no DI
+	u8 data;
 	if (u <= 12) {
-		RB(v) = m_data->read_byte(RL(u));
+		data = m_data->read_byte(RL(u));
 		RL(u)++;
 	} else {
-		RB(v) = m_data->read_byte(RA(u));
+		data = m_data->read_byte(RA(u));
 		RA(u)++;
 	}
+	RB(v) = data;
 }
 
 inline void puce_device::op_mli(u8 u, u8 v) {
   //L%d := [M%d]
   //no DI
+	u16 data;
 	if (u <= 12) {
-		RL(v) = m_program->read_word(RL(u));
+		data = m_program->read_word(RL(u));
 	} else {
-		RL(v) = m_program->read_word(RA(u));
+		data = m_program->read_word(RA(u));
 	}
-  op_illegal(NULL);
+	RL(v) = data;
 }
 
 inline void puce_device::op_mlim(u8 u, u8 v) {
   //L%d := [M%d--]
   //no DI
+	u16 data;
 	if (u <= 12) {
-		RL(v) = m_program->read_word(RL(u));
+		data = m_program->read_word(RL(u));
 		RL(u)--;
 	} else {
-		RL(v) = m_program->read_word(RA(u));
+		data = m_program->read_word(RA(u));
 		RA(u)--;
 	}
-  op_illegal(NULL);
+	RL(v) = data;
 }
 
 inline void puce_device::op_mlip(u8 u, u8 v) {
   //L%d := [M%d++]
   //no DI
+	u16 data;
 	if (u <= 12) {
-		RL(v) = m_program->read_word(RL(u));
+		data = m_program->read_word(RL(u));
 		RL(u)++;
 	} else {
-		RL(v) = m_program->read_word(RA(u));
+		data = m_program->read_word(RA(u));
 		RA(u)++;
 	}
+	RL(v) = data;
 }
 
 // ---- flags
@@ -556,13 +572,11 @@ inline void puce_device::op_mlip(u8 u, u8 v) {
 inline void puce_device::op_redi(u8 t) {
   //reset DI 0x%02x
 	m_di &= ~t;
-  op_illegal(NULL);
 }
 
 inline void puce_device::op_sedi(u8 t) {
   //set DI 0x%02x
 	m_di |= t;
-  op_illegal(NULL);
 }
 
 // ---- arithmetic and logic

@@ -134,6 +134,14 @@ u16 p6060bus_device:: get_ecd() {
   // reset: all cards
 void p6060bus_device::set_ecor(int level) {
 	LOG("%s: ecor=%d reset\n", machine().describe_context(), level);
+	if (level == ASSERT_LINE) {
+		// not sure which initializations reset does...
+		// but name is checked.
+		m_ecd = 0;
+		m_epd = 0;
+		m_epn = 0;
+		m_ept = 0;
+	}
 	for (int slot = 1; slot <= P6060_MAXSLOT; slot++)
 	{
 		auto card = get_p6060bus_card(slot);
@@ -154,7 +162,7 @@ bool p6060bus_device::strobe_ecos() {
 		if (card != nullptr)
 		{
 			if (card->strobe_ecos()) {
-				LOG("%s: slot %d responded", machine().describe_context(), slot);
+				LOG("%s: slot %d responded\n", machine().describe_context(), slot);
 				m_select = slot;
 				return true;
 			}

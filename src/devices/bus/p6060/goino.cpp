@@ -7,11 +7,13 @@
 *********************************************************************/
 
 #include "emu.h"
-
-#include "goino.h"
-
 // #include "emupal.h"
 #include "screen.h"
+#include "speaker.h"
+#include "machine/keyboard.h"
+#include "sound/beep.h"
+
+#include "goino.h"
 
 #define VERBOSE (1)
 #include "logmacro.h"
@@ -29,7 +31,10 @@ public:
 	// construction/destruction
 	p6060bus_goino_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
 
-	bool strobe_ecos();
+	bool strobe_ecos() override;
+	void strobe_ecot() override;
+	void strobe_ecoc() override;
+	void lights_shiftin(int value);
 
 protected:
 	virtual void device_start() override ATTR_COLD;
@@ -37,11 +42,19 @@ protected:
 	virtual void device_add_mconfig(machine_config &config) override ATTR_COLD;
 	// virtual ioport_constructor device_input_ports() const override ATTR_COLD;
 
+	TIMER_CALLBACK_MEMBER(bell_off);
+
 private:
 	uint32_t screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
 	// 	 u32 screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 
 	required_device<screen_device> m_screen;
+	emu_timer *m_bell_timer;
+	required_device<beep_device> m_beeper;
+	// generic_keyboard_device::output_delegate m_keyboard_cb;
+
+	int m_lights_shift;
+	u16 m_lights_buffer;
 };
 
 void p6060bus_goino_device::device_add_mconfig(machine_config &config)
@@ -66,6 +79,11 @@ void p6060bus_goino_device::device_add_mconfig(machine_config &config)
 	// m_screen->set_palette(m_video);
 	m_screen->set_no_palette();
 	m_screen->set_screen_update(FUNC(p6060bus_goino_device::screen_update));
+
+	SPEAKER(config, "bell").front_center();
+	BEEP(config, m_beeper, 1'200); // Condy p.14: 1200 Hz
+	m_beeper->add_route(ALL_OUTPUTS, "bell", 0.25);
+
 }
 
 /*
@@ -79,17 +97,29 @@ p6060bus_goino_device::p6060bus_goino_device(const machine_config &mconfig, cons
 	: device_t(mconfig, P6060BUS_GOINO, tag, owner, clock)
 	, device_p6060bus_card_interface(mconfig, *this)
 	, m_screen(*this, "screen")
+	, m_bell_timer(nullptr)
+	, m_beeper(*this, "beeper")
 {
 }
 
 void p6060bus_goino_device::device_start()
 {
 	LOG("%s: device_start\n", machine().describe_context());
+	m_bell_timer = timer_alloc(FUNC(p6060bus_goino_device::bell_off), this);
+	// m_keyboard_cb.resolve_safe();
 }
 
 void p6060bus_goino_device::device_reset()
 {
 	LOG("%s: device_reset\n", machine().describe_context());
+	m_beeper->set_state(0);
+	m_lights_shift = 0;
+	m_lights_buffer = 0;
+}
+
+TIMER_CALLBACK_MEMBER(p6060bus_goino_device::bell_off)
+{
+	m_beeper->set_state(0);
 }
 
 uint32_t p6060bus_goino_device::screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect)
@@ -135,11 +165,42 @@ uint32_t p6060bus_goino_device::screen_update(screen_device &screen, bitmap_rgb3
 	return 0;
 }
 
+void p6060bus_goino_device::lights_shiftin(int value) {
+	m_lights_shift++;
+	m_lights_buffer = m_lights_buffer << 1 | (value & 1);
+	if (m_lights_shift >= 16) {
+		if (m_lights_buffer & 0x4000) {
+			m_beeper->set_state(1);
+			m_bell_timer->reset(attotime::from_msec(200)); // Condy p.14: 200ms
+		}
+		LOG("%s: lights %02x\n", machine().describe_context(), m_lights_buffer);
+		m_lights_shift = 0;
+		m_lights_buffer = 0;
+	}
+}
+
 bool p6060bus_goino_device::strobe_ecos() {
 	LOG("%s: ecos\n", machine().describe_context());
 	return true;
 }
 
+void p6060bus_goino_device::strobe_ecoc() {
+	LOG("%s: ecoc\n", machine().describe_context());
+}
+
+// Condy says CAE, but ROMCA uses DAE
+// if necessary, call from ecoc, too.
+void p6060bus_goino_device::strobe_ecot() {
+	LOG("%s: ecot\n", machine().describe_context());
+	u16 data = m_p6060bus->get_ecd();
+	switch (data &0xff00) {
+		case 0x4000: // PULSN-NOPPO  strobe dati per consolle luminosa e cicalino
+			lights_shiftin(data & 1);
+			break;
+		default:
+			logerror("%s: illegal command %04x", machine().describe_context(), data);
+	}
+}
 
 } // anonymous namespace
 

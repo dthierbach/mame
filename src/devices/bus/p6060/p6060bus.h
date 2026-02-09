@@ -163,23 +163,25 @@ public:
 
 protected:
 
-	void set_ecor(int level) { };
-	bool strobe_ecos() { return false; };
-	void strobe_ecot() { };
-	void strobe_ecoc() { };
-	void strobe_ecof() { };
-	void set_ec1f(int level) { };
-	void set_ec2f(int level) { };
+	virtual void set_ecor(int level) { };
+	virtual bool strobe_ecos() { return false; };
+	virtual void strobe_ecot() { };
+	virtual void strobe_ecoc() { };
+	virtual void strobe_ecof() { };
+	virtual void set_ec1f(int level) { };
+	virtual void set_ec2f(int level) { };
 
 	device_p6060bus_card_interface(const machine_config &mconfig, device_t &device);
 
 	virtual void interface_validity_check(validity_checker &valid) const override;
 	virtual void interface_pre_start() override;
 
-private:
 	optional_device<p6060bus_device> m_p6060bus_finder;
 	p6060bus_device *m_p6060bus;
 	const char *m_p6060bus_slottag;
+
+private:
+
 };
 
 #endif  // MAME_BUS_P6060_P6060BUS_H
