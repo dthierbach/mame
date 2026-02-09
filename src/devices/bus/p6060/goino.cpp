@@ -51,6 +51,7 @@ private:
 	required_device<screen_device> m_screen;
 	emu_timer *m_bell_timer;
 	required_device<beep_device> m_beeper;
+	output_finder<12> m_lamps;
 	// generic_keyboard_device::output_delegate m_keyboard_cb;
 
 	int m_lights_shift;
@@ -59,6 +60,7 @@ private:
 
 void p6060bus_goino_device::device_add_mconfig(machine_config &config)
 {
+	LOG("%s: device_add_mconfig\n");
 	/*
 	SCREEN(config, m_screen, SCREEN_TYPE_RASTER);
 	m_screen->set_screen_update(FUNC(p6060bus_goino_device::screen_update));
@@ -99,6 +101,7 @@ p6060bus_goino_device::p6060bus_goino_device(const machine_config &mconfig, cons
 	, m_screen(*this, "screen")
 	, m_bell_timer(nullptr)
 	, m_beeper(*this, "beeper")
+	, m_lamps(*this, "lamp%u", 1U)
 {
 }
 
@@ -106,6 +109,20 @@ void p6060bus_goino_device::device_start()
 {
 	LOG("%s: device_start\n", machine().describe_context());
 	m_bell_timer = timer_alloc(FUNC(p6060bus_goino_device::bell_off), this);
+	m_lamps.resolve();
+	for (int i = 0; i < 12; i++) {
+		auto p = m_lamps[i];
+		if (p) {
+			LOG("%s:   lamp %d nonnull %p\n", machine().describe_context(), i, p);
+		} else {
+			LOG("%s:   lamp %d null %p\n", machine().describe_context(), i, p);
+		}
+	}
+	for (int i = 0; i < 12; i++) {
+		LOG("%s:   lamp %d value %d\n", machine().describe_context(), i, m_lamps[i]);
+		m_lamps[i] = 1;
+		LOG("%s:   lamp %d value %d\n", machine().describe_context(), i, m_lamps[i]);
+	}
 	// m_keyboard_cb.resolve_safe();
 }
 

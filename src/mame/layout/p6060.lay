@@ -158,6 +158,21 @@ license:CC0-1.0
 	<element name="StatusRunning">
 		<disk>
 			<bounds x="0.0" y="0.0" width="1.0" height="1.0" />
+			<color red="0.0" green="0.5" blue="0.0" />
+		</disk>
+		<disk state="0">
+			<bounds x="0.1" y="0.1" width="0.9" height="0.9" />
+			<color red="0.0" green="0.2" blue="0.0" />
+		</disk>
+		<disk state="1">
+			<bounds x="0.1" y="0.1" width="0.9" height="0.9" />
+			<color red="0.0" green="1.0" blue="0.0" />
+		</disk>
+	</element>
+
+	<element name="StatusLineOverflow">
+		<disk>
+			<bounds x="0.0" y="0.0" width="1.0" height="1.0" />
 			<color red="0.5" green="0" blue="0.0" />
 		</disk>
 		<disk state="0">
@@ -167,6 +182,36 @@ license:CC0-1.0
 		<disk state="1">
 			<bounds x="0.1" y="0.1" width="0.9" height="0.9" />
 			<color red="1.0" green="0.0" blue="0.0" />
+		</disk>
+	</element>
+
+	<element name="StatusDegRad">
+		<disk>
+			<bounds x="0.0" y="0.0" width="1.0" height="1.0" />
+			<color red="0.5" green="0.5" blue="0.0" />
+		</disk>
+		<disk state="0">
+			<bounds x="0.1" y="0.1" width="0.9" height="0.9" />
+			<color red="0.2" green="0.2" blue="0.0" />
+		</disk>
+		<disk state="1">
+			<bounds x="0.1" y="0.1" width="0.9" height="0.9" />
+			<color red="1.0" green="1.0" blue="0.0" />
+		</disk>
+	</element>
+
+	<element name="StatusOnline">
+		<disk>
+			<bounds x="0.0" y="0.0" width="1.0" height="1.0" />
+			<color red="0.5" green="0.5" blue="0.0" />
+		</disk>
+		<disk state="0">
+			<bounds x="0.1" y="0.1" width="0.9" height="0.9" />
+			<color red="0.2" green="0.2" blue="0.0" />
+		</disk>
+		<disk state="1">
+			<bounds x="0.1" y="0.1" width="0.9" height="0.9" />
+			<color red="1.0" green="1.0" blue="0.0" />
 		</disk>
 	</element>
 
@@ -200,6 +245,15 @@ license:CC0-1.0
 		<element ref="StatusRunning"  name="lamp8">
 			<bounds x="0" y="0" width="2" height="2" />
 		</element>
+		<element ref="StatusLineOverflow"  name="lamp9">
+			<bounds x="0" y="4" width="2" height="2" />
+		</element>
+		<element ref="StatusDegRad"  name="lamp10">
+			<bounds x="0" y="8" width="2" height="2" />
+		</element>
+		<element ref="StatusOnline"  name="lamp11">
+			<bounds x="0" y="12" width="2" height="2" />
+		</element>
 	</group>
 
 	<view name="Default Layout">
@@ -217,7 +271,7 @@ license:CC0-1.0
 
 		<collection name="Status">
 			<group ref="status">
-				<bounds x="160" y="35" width="30" height="30" />
+				<bounds x="160" y="35" width="20" height="70" />
 			</group>
 		</collection>
 

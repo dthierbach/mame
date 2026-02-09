@@ -40,8 +40,6 @@ public:
 		, m_buttons(*this, "BUTTONS")
 	{ }
 
-	DECLARE_INPUT_CHANGED_MEMBER(trigger_reset);
-	DECLARE_INPUT_CHANGED_MEMBER(trigger_nmi);
 	void p6060(machine_config &config);
 
 	uint32_t screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
@@ -178,7 +176,6 @@ void p6060_state::p6060(machine_config &config)
 	config.set_default_layout(layout_p6060);
 
 	SPEAKER(config, "mono").front_center();
-
 
 }
 

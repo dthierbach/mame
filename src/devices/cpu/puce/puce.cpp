@@ -431,10 +431,10 @@ inline void puce_device::op_lmip(u8 u, u8 v) {
 
 inline void puce_device::op_lpmip(u8 u, u8 v) {
   //[M%d++] := ++L%d
+	// L not actually incremented? so L%d+1 instead of ++L%d ??
   //no DI
 	u16 addr = calc_addrp(u);
-	RL(v)++;
-	m_program->write_word(addr, RL(v));
+	m_program->write_word(addr, RL(v)+1);
 }
 
 inline void puce_device::op_mai(u8 u, u8 v) {
