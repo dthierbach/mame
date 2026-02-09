@@ -332,106 +332,101 @@ inline void puce_device::op_crtb(u8 s, u8 t) {
 
 // -------- memory
 
+inline u16 puce_device::calc_addr(u8 u) {
+	u16 addr;
+	if (u <= 12) {
+		addr = RL(u);
+	} else {
+		addr = RA(u);
+	}
+	return addr;
+}
+
+inline u16 puce_device::calc_addrm(u8 u) {
+	u16 addr;
+	if (u <= 12) {
+		addr = RL(u);
+		RL(u)--;
+	} else {
+		addr = RA(u);
+		RA(u)--;
+	}
+	return addr;
+}
+
+inline u16 puce_device::calc_addrp(u8 u) {
+	u16 addr;
+	if (u <= 12) {
+		addr = RL(u);
+		RL(u)++;
+	} else {
+		addr = RA(u);
+		RA(u)++;
+	}
+	return addr;
+}
+
 inline void puce_device::op_ami(u8 u, u8 v) {
   //[M%d] := A%d
   //no DI
-	if (u <= 12) {
-		m_data->write_byte(RL(u), RA(v));
-	} else {
-		m_data->write_byte(RA(u), RA(v));
-	}
+	u16 addr = calc_addr(u);
+	m_data->write_byte(addr, RA(v));
 }
 
 inline void puce_device::op_amim(u8 u, u8 v) {
   //[M%d--] := A%d
   //no DI
-	if (u <= 12) {
-		m_data->write_byte(RL(u), RA(v));
-		RL(u)--;
-	} else {
-		m_data->write_byte(RA(u), RA(v));
-		RA(u)--;
-	}
+	u16 addr = calc_addrm(u);
+	m_data->write_byte(addr, RA(v));
 }
 
 inline void puce_device::op_amip(u8 u, u8 v) {
   //[M%d++] := A%d
   //no DI
-	if (u <= 12) {
-		m_data->write_byte(RL(u), RA(v));
-		RL(u)++;
-	} else {
-		m_data->write_byte(RA(u), RA(v));
-		RA(u)++;
-	}
+	u16 addr = calc_addrp(u);
+	m_data->write_byte(addr, RA(v));
 }
 
 inline void puce_device::op_bmi(u8 u, u8 v) {
   //[M%d] := B%d
   //no DI
-	if (u <= 12) {
-		m_data->write_byte(RL(u), RB(v));
-	} else {
-		m_data->write_byte(RA(u), RB(v));
-	}
+	u16 addr = calc_addr(u);
+	m_data->write_byte(addr, RB(v));
 }
 
 inline void puce_device::op_bmim(u8 u, u8 v) {
   //[M%d--] := B%d
   //no DI
-	if (u <= 12) {
-		m_data->write_byte(RL(u), RB(v));
-		RL(u)--;
-	} else {
-		m_data->write_byte(RA(u), RB(v));
-		RA(u)--;
-	}
+	u16 addr = calc_addrm(u);
+	m_data->write_byte(addr, RB(v));
 }
 
 inline void puce_device::op_bmip(u8 u, u8 v) {
   //[M%d++] := B%d
   //no DI
-	if (u <= 12) {
-		m_data->write_byte(RL(u), RB(v));
-		RL(u)++;
-	} else {
-		m_data->write_byte(RA(u), RB(v));
-		RA(u)++;
-	}
+	u16 addr = calc_addrp(u);
+	m_data->write_byte(addr, RB(v));
 }
 
 inline void puce_device::op_lmi(u8 u, u8 v) {
   //[M%d}] := L%d
   //no DI
-	if (u <= 12) {
-		m_program->write_word(RL(u), RL(v));
-	} else {
-		m_program->write_word(RA(u), RL(v));
-	}
+	u16 addr = calc_addr(u);
+	m_program->write_word(addr, RL(v));
 }
 
 inline void puce_device::op_lmim(u8 u, u8 v) {
   //[M%d--] := L%d
   //no DI
-	if (u <= 12) {
-		m_program->write_word(RL(u), RL(v));
-		RL(u)--;
-	} else {
-		m_program->write_word(RA(u), RL(v));
-		RA(u)--;
-	}
+	u16 addr = calc_addrm(u);
+	m_program->write_word(addr, RL(v));
 }
 
 inline void puce_device::op_lmip(u8 u, u8 v) {
   //[M%d++] := L%d
   //no DI
-	if (u <= 12) {
-		m_program->write_word(RL(u), RL(v));
-		RL(u)++;
-	} else {
-		m_program->write_word(RA(u), RL(v));
-		RA(u)++;
-	}
+	u16 addr = calc_addrp(u);
+	m_program->write_word(addr, RL(v));
 }
 
 inline void puce_device::op_lpmip(u8 u, u8 v) {

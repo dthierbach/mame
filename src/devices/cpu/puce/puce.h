@@ -85,6 +85,10 @@ private:
 	address_space *m_program;
 	address_space *m_data;
 
+	u16 calc_addr(u8 u);
+	u16 calc_addrm(u8 u);
+	u16 calc_addrp(u8 u);
+
 	void op_sai(u16 j);
   void op_amd(u8 s, u8 t);
   void op_mad(u8 s, u8 t);
