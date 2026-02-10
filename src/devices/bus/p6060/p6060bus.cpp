@@ -154,7 +154,7 @@ void p6060bus_device::set_ecor(int level) {
 
 	// select: in priority order to all cards
 bool p6060bus_device::strobe_ecos() {
-	LOG("%s: ecos select\n", machine().describe_context());
+	LOG("%s: ecos select ecd=%04x\n", machine().describe_context(), m_ecd);
 	// TODO do this in priority order
 	for (int slot = P6060_MAXSLOT; slot >= 1; slot--)
 	{

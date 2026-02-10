@@ -514,79 +514,66 @@ inline void puce_device::op_sedi(u8 t) {
 
 // ---- arithmetic and logic
 
-inline void puce_device::op_add(u8 u, u8 v) {
-  //A%d + B%d + DI0
-  //DI0,1,2 = CZH
+// slow implementation
+inline u8 puce_device::arith_add(u8 x, u8 y) {
 	PAIR16 tmp;
-	tmp.w = (m_di & 1) + RA(u) + RB(v);
+	tmp.w = (m_di & 1) + x + y;
 	m_di &= 0xf8;
 	m_di |= tmp.b.h;
 	m_di |= (tmp.b.l == 0) ? 2 : 0;
-	// TODO half-carry
-  op_illegal(NULL);
+	if ((m_di & 1) + (x & 0xf) + (y & 0xf) >= 0x10) {
+		m_di |= 4;
+	}
+	return tmp.b.l;
+}
+
+inline u8 puce_device::arith_sub(u8 x, u8 y) {
+	// TODO verify one-complement/twoc-omplement
+	PAIR16 tmp;
+	tmp.w = (m_di & 1) + x + (y ^ 0xff);
+	m_di &= 0xf8;
+	m_di |= tmp.b.h;
+	m_di |= (tmp.b.l == 0) ? 2 : 0;
+	if ((m_di & 1) + (x & 0xf) + ((y ^0xf) & 0xf) >= 0x10) {
+		m_di |= 4;
+	}
+	return tmp.b.l;
+}
+
+inline void puce_device::op_add(u8 u, u8 v) {
+  //A%d + B%d + DI0
+  //DI0,1,2 = CZH
+	arith_add(RA(u), RB(v));
 }
 
 inline void puce_device::op_adda(u8 u, u8 v) {
   //A%d := A%d + B%d + DI0
   //DI0,1,2 = CZH
-	PAIR16 tmp;
-	tmp.w = (m_di & 1) + RA(u) + RB(v);
-	m_di &= 0xf8;
-	m_di |= tmp.b.h;
-	m_di |= (tmp.b.l == 0) ? 2 : 0;
-	RA(u) = tmp.b.l;
-	// TODO half-carry
-  op_illegal(NULL);
+	RA(u) = arith_add(RA(u), RB(v));
 }
 
 inline void puce_device::op_addb(u8 u, u8 v) {
   //B%d := A%d + B%d + DI0
   //DI0,1,2 = CZH
-	PAIR16 tmp;
-	tmp.w = (m_di & 1) + RA(u) + RB(v);
-	m_di &= 0xf8;
-	m_di |= tmp.b.h;
-	m_di |= (tmp.b.l == 0) ? 2 : 0;
-	RB(v) = tmp.b.l;
-  op_illegal(NULL);
+	RB(v) = arith_add(RA(u), RB(v));
 }
 
 inline void puce_device::op_sot(u8 u, u8 v) {
   //A%d - B%d + DI0
   //DI0,1,2 = CZH
-	PAIR16 tmp;
-	// TODO verify one-complement/twoc-omplement
-	tmp.w = (m_di & 1) + RA(u) + (0xff ^ RB(v));
-	m_di &= 0xf8;
-	m_di |= tmp.b.h;
-	m_di |= (tmp.b.l == 0) ? 2 : 0;
-  op_illegal(NULL);
+	arith_sub(RA(u), RB(v));
 }
 
 inline void puce_device::op_sota(u8 u, u8 v) {
   //A%d := A%d - B%d + DI0
   //DI0,1,2 = CZH
-	PAIR16 tmp;
-	// TODO verify one-complement/twoc-omplement
-	tmp.w = (m_di & 1) + RA(u) + (0xff ^ RB(v));
-	m_di &= 0xf8;
-	m_di |= tmp.b.h;
-	m_di |= (tmp.b.l == 0) ? 2 : 0;
-	RA(u) = tmp.b.l;
-  op_illegal(NULL);
+	RA(u) = arith_sub(RA(u), RB(v));
 }
 
 inline void puce_device::op_sotb(u8 u, u8 v) {
   //B%d := A%d - B%d + DI0
   //DI0,1,2 = CZH
-	PAIR16 tmp;
-	// TODO verify one-complement/twoc-omplement
-	tmp.w = (m_di & 1) + RA(u) + (0xff ^ RB(v));
-	m_di &= 0xf8;
-	m_di |= tmp.b.h;
-	m_di |= (tmp.b.l == 0) ? 2 : 0;
-	RB(v) = tmp.b.l;
-  op_illegal(NULL);
+	RB(v) = arith_sub(RA(u), RB(v));
 }
 
 inline void puce_device::op_and(u8 u, u8 v) {
@@ -606,7 +593,7 @@ inline void puce_device::op_anda(u8 u, u8 v) {
 inline void puce_device::op_andb(u8 u, u8 v) {
   //B%d := A%d and B%d
   //DI1 = zero
-	u8 tmp = RB(u) = RA(u) & RB(v);
+	u8 tmp = RB(v) = RA(u) & RB(v);
 	DIZERO(tmp);
 }
 
@@ -627,7 +614,7 @@ inline void puce_device::op_ora(u8 u, u8 v) {
 inline void puce_device::op_orb(u8 u, u8 v) {
   //B%d := A%d or B%d
   //DI1 = zero
-	u8 tmp = RB(u) = RA(u) | RB(v);
+	u8 tmp = RB(v) = RA(u) | RB(v);
 	DIZERO(tmp);
 }
 
@@ -648,7 +635,7 @@ inline void puce_device::op_orea(u8 u, u8 v) {
 inline void puce_device::op_oreb(u8 u, u8 v) {
   //B%d := A%d xor B%d
   //DI1 = zero
-	u8 tmp = RB(u) = RA(u) ^ RB(v);
+	u8 tmp = RB(v) = RA(u) ^ RB(v);
 	DIZERO(tmp);
 }
 
