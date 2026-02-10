@@ -103,9 +103,14 @@ void p6060_state::program_mem_map(address_map &map)
 	map.unmap_value_high();
 	map(0x0000, 0x7fff).rw(m_maincpu, FUNC(puce_device::read16_delegate), FUNC(puce_device::write16_delegate));
 	map(0x8000, 0x87ff).rom().region("bootrom", 0);
+	// The ROMCA dump we have actually wants all RAM...
+	map(0x8800, 0xffff).ram();
+	/*
+	// Variant for an early P6060.
 	map(0x8800, 0x9fff).unmaprw();
 	map(0xa000, 0xbfff).ram();
 	map(0xc000, 0xffff).unmaprw();
+	*/
 }
 
 void p6060_state::data_mem_map(address_map &map)

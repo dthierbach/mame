@@ -175,14 +175,14 @@ void p6060bus_goino_device::lights_shiftin(int value) {
 	m_lights_shift++;
 	m_lights_buffer = m_lights_buffer << 1 | (value & 1);
 	if (m_lights_shift >= 16) {
+		LOG("%s: >>>> >>>> lights %04x\n", machine().describe_context(), m_lights_buffer);
 		if (m_lights_buffer & 0x4000) {
 			m_beeper->set_state(1);
 			m_bell_timer->reset(attotime::from_msec(200)); // Condy p.14: 200ms
 		}
-		LOG("%s: >>> >>>> lights %04x\n", machine().describe_context(), m_lights_buffer);
 		for (int i = 0; i < 12; i++) {
-			m_lamps[i] = m_lights_shift & 1;
-			m_lights_shift = m_lights_shift >> 1;
+			m_lamps[i] = m_lights_buffer & 1;
+			m_lights_buffer = m_lights_buffer >> 1;
 		}
 		m_lights_shift = 0;
 		m_lights_buffer = 0;
