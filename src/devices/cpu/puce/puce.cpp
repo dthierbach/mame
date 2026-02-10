@@ -730,7 +730,6 @@ inline void puce_device::op_sdib(u8 u) {
   //B%d <-> DI
   //DI set
 	u8 tmp = m_di; m_di = RB(u); RB(u) = tmp;
-  op_illegal(NULL);
 }
 
 // ---- transfer
