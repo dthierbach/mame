@@ -13,18 +13,18 @@ license:CC0-1.0
 		</rect>
 		<rect state="0">
 			<bounds left="0.05" top="0.05" right="0.95" bottom="0.95" />
-			<color red="0.5" green="0.5" blue="0.5" />
+			<color red="0.6" green="0.6" blue="0.6" />
 		</rect>
 		<rect state="1">
 			<bounds left="0.05" top="0.05" right="0.95" bottom="0.95" />
 			<color red="0.9" green="0.9" blue="0.9" />
 		</rect>
-		<text string="No   ">
-			<bounds left="0.1" top="0.1" right="0.9" bottom="0.45" />
+		<text string="NO" align="0">
+			<bounds yc="0.35" height="0.32" left="0.1" right="0.9"  />
 			<color red="0" green="0" blue="0" />
 		</text>
-		<text string="Print">
-			<bounds left="0.1" top="0.55" right="0.9" bottom="0.9" />
+		<text string="PRINT" align="0">
+			<bounds yc="0.65" height="0.32" left="0.1" right="0.9" />
 			<color red="0" green="0" blue="0" />
 		</text>
 	</element>
@@ -36,18 +36,18 @@ license:CC0-1.0
 		</rect>
 		<rect state="0">
 			<bounds left="0.05" top="0.05" right="0.95" bottom="0.95" />
-			<color red="0.5" green="0.5" blue="0.5" />
+			<color red="0.6" green="0.6" blue="0.6" />
 		</rect>
 		<rect state="1">
 			<bounds left="0.05" top="0.05" right="0.95" bottom="0.95" />
 			<color red="0.9" green="0.9" blue="0.9" />
 		</rect>
-		<text string="Print">
-			<bounds left="0.1" top="0.1" right="0.9" bottom="0.45" />
+		<text string="PRINT" align="0">
+			<bounds yc="0.35" height="0.32" left="0.1" right="0.9"  />
 			<color red="0" green="0" blue="0" />
 		</text>
-		<text string="All  ">
-			<bounds left="0.1" top="0.55" right="0.9" bottom="0.9" />
+		<text string="ALL" align="0">
+			<bounds yc="0.65" height="0.32" left="0.1" right="0.9" />
 			<color red="0" green="0" blue="0" />
 		</text>
 	</element>
@@ -59,14 +59,14 @@ license:CC0-1.0
 		</rect>
 		<rect state="0">
 			<bounds left="0.05" top="0.05" right="0.95" bottom="0.95" />
-			<color red="0.5" green="0.5" blue="0.5" />
+			<color red="0.6" green="0.6" blue="0.6" />
 		</rect>
 		<rect state="1">
 			<bounds left="0.05" top="0.05" right="0.95" bottom="0.95" />
 			<color red="0.9" green="0.9" blue="0.9" />
 		</rect>
-		<text string="Step ">
-			<bounds left="0.1" top="0.3" right="0.9" bottom="0.7" />
+		<text string="STEP" align="0">
+			<bounds yc="0.5" height="0.32" left="0.1" right="0.9"  />
 			<color red="0" green="0" blue="0" />
 		</text>
 	</element>
@@ -78,14 +78,14 @@ license:CC0-1.0
 		</rect>
 		<rect state="0">
 			<bounds left="0.05" top="0.05" right="0.95" bottom="0.95" />
-			<color red="0.5" green="0.5" blue="0.5" />
+			<color red="0.6" green="0.6" blue="0.6" />
 		</rect>
 		<rect state="1">
 			<bounds left="0.05" top="0.05" right="0.95" bottom="0.95" />
 			<color red="0.9" green="0.9" blue="0.9" />
 		</rect>
-		<text string="Trace">
-			<bounds left="0.1" top="0.3" right="0.9" bottom="0.7" />
+		<text string="TRACE" align="0">
+			<bounds yc="0.5" height="0.32" left="0.1" right="0.9"  />
 			<color red="0" green="0" blue="0" />
 		</text>
 	</element>
@@ -97,18 +97,18 @@ license:CC0-1.0
 		</rect>
 		<rect state="0">
 			<bounds left="0.05" top="0.05" right="0.95" bottom="0.95" />
-			<color red="0.5" green="0.5" blue="0.5" />
+			<color red="0.6" green="0.6" blue="0.6" />
 		</rect>
 		<rect state="1">
 			<bounds left="0.05" top="0.05" right="0.95" bottom="0.95" />
 			<color red="0.9" green="0.9" blue="0.9" />
 		</rect>
-		<text string="Con-">
-			<bounds left="0.1" top="0.1" right="0.9" bottom="0.45" />
+		<text string="CON-" align="0">
+			<bounds yc="0.35" height="0.32" left="0.1" right="0.9"  />
 			<color red="0" green="0" blue="0" />
 		</text>
-		<text string="tinue">
-			<bounds left="0.1" top="0.55" right="0.9" bottom="0.9" />
+		<text string="TINUE" align="0">
+			<bounds yc="0.65" height="0.32" left="0.1" right="0.9" />
 			<color red="0" green="0" blue="0" />
 		</text>
 	</element>
@@ -120,14 +120,14 @@ license:CC0-1.0
 		</rect>
 		<rect state="0">
 			<bounds left="0.05" top="0.05" right="0.95" bottom="0.95" />
-			<color red="0.5" green="0.5" blue="0.5" />
+			<color red="0.7" green="0.2" blue="0.2" />
 		</rect>
 		<rect state="1">
 			<bounds left="0.05" top="0.05" right="0.95" bottom="0.95" />
-			<color red="0.9" green="0.9" blue="0.9" />
+			<color red="1.0" green="0.5" blue="0.5" />
 		</rect>
-		<text string="Break">
-			<bounds left="0.1" top="0.3" right="0.9" bottom="0.7" />
+		<text string="BREAK" align="0">
+			<bounds yc="0.5" height="0.32" left="0.1" right="0.9"  />
 			<color red="0" green="0" blue="0" />
 		</text>
 	</element>
@@ -139,18 +139,18 @@ license:CC0-1.0
 		</rect>
 		<rect state="0">
 			<bounds left="0.05" top="0.05" right="0.95" bottom="0.95" />
-			<color red="0.5" green="0.5" blue="0.5" />
+			<color red="0.6" green="0.6" blue="0.6" />
 		</rect>
 		<rect state="1">
 			<bounds left="0.05" top="0.05" right="0.95" bottom="0.95" />
 			<color red="0.9" green="0.9" blue="0.9" />
 		</rect>
-		<text string="Calc ">
-			<bounds left="0.1" top="0.1" right="0.9" bottom="0.45" />
+		<text string="CALC" align="0">
+			<bounds yc="0.35" height="0.32" left="0.1" right="0.9"  />
 			<color red="0" green="0" blue="0" />
 		</text>
-		<text string="Mode ">
-			<bounds left="0.1" top="0.55" right="0.9" bottom="0.9" />
+		<text string="MODE" align="0">
+			<bounds yc="0.65" height="0.32" left="0.1" right="0.9" />
 			<color red="0" green="0" blue="0" />
 		</text>
 	</element>
@@ -231,7 +231,51 @@ license:CC0-1.0
 		</disk>
 	</element>
 
-	<group name="keypad">
+	<element name="LabelRunning">
+		<rect>
+			<bounds left="0" top="0" right="4" bottom="1" />
+			<color red="0.0" green="0.0" blue="0.0" />
+		</rect>
+		<text string="Running" align="1">
+			<bounds yc="0.5" height="0.8" left="0.1" right="3.9" />
+			<color red="1.0" green="1.0" blue="1.0" />
+		</text>
+	</element>
+
+	<element name="LabelLineOverflow">
+		<rect>
+			<bounds left="0" top="0" right="4" bottom="1" />
+			<color red="0.0" green="0.0" blue="0.0" />
+		</rect>
+		<text string="Line Overflow" align="1">
+			<bounds yc="0.5" height="0.8" left="0.1" right="3.9" />
+			<color red="1.0" green="1.0" blue="1.0" />
+		</text>
+	</element>
+
+	<element name="LabelDegRad">
+		<rect>
+			<bounds left="0" top="0" right="4" bottom="1" />
+			<color red="0.0" green="0.0" blue="0.0" />
+		</rect>
+		<text string="Deg Rad" align="1">
+			<bounds yc="0.5" height="0.8" left="0.1" right="3.9" />
+			<color red="1.0" green="1.0" blue="1.0" />
+		</text>
+	</element>
+
+	<element name="LabelOnline">
+		<rect>
+			<bounds left="0" top="0" right="4" bottom="1" />
+			<color red="0.0" green="0.0" blue="0.0" />
+		</rect>
+		<text string="Online" align="1">
+			<bounds yc="0.5" height="0.8" left="0.1" right="3.9" />
+			<color red="1.0" green="1.0" blue="1.0" />
+		</text>
+	</element>
+
+	<group name="GroupKeypad">
 		<element ref="KeyCalcMode" name="lamp7" inputtag="BUTTONS" inputmask="0x080">
 			<bounds x="0" y="0" width="4" height="4" />
 		</element>
@@ -257,7 +301,7 @@ license:CC0-1.0
 		</element>
 	</group>
 
-	<group name="status">
+	<group name="GroupStatus">
 		<element ref="StatusRunning"  name="lamp8">
 			<bounds x="0" y="0" width="2" height="2" />
 		</element>
@@ -272,6 +316,21 @@ license:CC0-1.0
 		</element>
 	</group>
 
+	<group name="GroupLabel">
+		<element ref="LabelRunning">
+			<bounds x="0" y="0" width="2" height="2" />
+		</element>
+		<element ref="LabelLineOverflow">
+			<bounds x="0" y="2" width="2" height="2" />
+		</element>
+		<element ref="LabelDegRad">
+			<bounds x="0" y="4" width="2" height="2" />
+		</element>
+		<element ref="LabelOnline">
+			<bounds x="0" y="6" width="2" height="2" />
+		</element>
+	</group>
+
 	<view name="Default Layout">
 		<bounds left="0" top="0" right="460" bottom="140" />
 
@@ -279,15 +338,21 @@ license:CC0-1.0
 			<bounds x="10" y="10" width="444" height="14" />
 		</screen>
 
-		<collection name="Keypad">
-			<group ref="keypad">
+		<collection name="GroupKeypad">
+			<group ref="GroupKeypad">
 				<bounds x="10" y="35" width="120" height="60" />
 			</group>
 		</collection>
 
-		<collection name="Status">
-			<group ref="status">
+		<collection name="GroupStatus">
+			<group ref="GroupStatus">
 				<bounds x="160" y="35" width="15" height="60" />
+			</group>
+		</collection>
+
+		<collection name="GroupLabel">
+			<group ref="GroupLabel">
+				<bounds x="180" y="35" width="60" height="60" />
 			</group>
 		</collection>
 

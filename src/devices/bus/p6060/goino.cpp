@@ -101,7 +101,7 @@ p6060bus_goino_device::p6060bus_goino_device(const machine_config &mconfig, cons
 	, m_screen(*this, "screen")
 	, m_bell_timer(nullptr)
 	, m_beeper(*this, "beeper")
-	, m_lamps(*this, "lamp%u", 1U)
+	, m_lamps(*this, "lamp%u", 0U)
 {
 }
 
@@ -172,8 +172,12 @@ uint32_t p6060bus_goino_device::screen_update(screen_device &screen, bitmap_rgb3
 }
 
 void p6060bus_goino_device::lights_shiftin(int value) {
+	// lamp0 "NoPrint" is sent first, must end up at bit 0 after 16 steps
 	m_lights_shift++;
-	m_lights_buffer = m_lights_buffer << 1 | (value & 1);
+	m_lights_buffer = m_lights_buffer >> 1;
+	if (value & 1) {
+		m_lights_buffer |= 0x8000;
+	}
 	if (m_lights_shift >= 16) {
 		LOG("%s: >>>> >>>> lights %04x\n", machine().describe_context(), m_lights_buffer);
 		if (m_lights_buffer & 0x4000) {
