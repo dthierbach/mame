@@ -52,15 +52,17 @@ public:
 	// device_state_interface overrides
 	virtual void state_string_export(const device_state_entry &entry, std::string &str) const override;
 
+	uint16_t read16_delegate(offs_t offset);
+	void write16_delegate(offs_t offset, uint16_t data);
+
+	void set_irq_level(int level) { m_irq_lvl = level; }
+
 	// references
 	required_device<p6060bus_interface> m_extbus;
 
 	// address spaces
 	address_space_config m_program_config;
 	address_space_config m_data_config;
-
-	uint16_t read16_delegate(offs_t offset);
-	void write16_delegate(offs_t offset, uint16_t data);
 
 protected:
 	// construction/destruction
@@ -76,7 +78,8 @@ private:
 	PAIR16 m_reg[16]; // 16 bit L, 8 bit A and B
 	u16 m_pc; // calculated at begin of execution
   u8 m_di; // flags
-  int m_lvl; // 0..3
+  int m_lvl; // 1..4
+	int m_irq_lvl; // 1..4
 
 	// other internal states
 	int m_icount;
@@ -216,6 +219,7 @@ DECLARE_DEVICE_TYPE(PUCE, puce_device)
 enum
 {
 	PUCE_LVL = 1,
+	PUCE_IRQ_LVL,
 	PUCE_DI,
 	PUCE_L0, PUCE_L1, PUCE_L2, PUCE_L3, PUCE_L4, PUCE_L5, PUCE_L6, PUCE_L7,
 	PUCE_L8, PUCE_L9, PUCE_L10, PUCE_L11, PUCE_L12, PUCE_L13, PUCE_L14, PUCE_L15,

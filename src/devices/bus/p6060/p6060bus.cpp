@@ -63,6 +63,11 @@ void p6060bus_slot_device::device_start()
 
 DEFINE_DEVICE_TYPE(P6060BUS, p6060bus_device, "p6060bus", "P6060 Card Bus")
 
+// skip 11 as second FLODI slot
+static const unsigned irq_slot[] = { 1, 13, 12, 10, 9, 8, 2, 3, 4, 5, 6 };
+
+// dma_slot[]
+
 //**************************************************************************
 //  LIVE DEVICE
 //**************************************************************************
@@ -118,6 +123,10 @@ device_p6060bus_card_interface *p6060bus_device::get_p6060bus_card(int slot)
 void p6060bus_device::add_p6060bus_card(int slot, device_p6060bus_card_interface *card)
 {
 	m_device_list[slot] = card;
+	irq_mask_t irq_mask = 0; // TODO        
+	dma_mask_t dma_mask = 0;
+	card->set_irq_mask(irq_mask);
+	card->set_dma_mask(dma_mask);
 }
 
 // ---- from CPU
@@ -265,6 +274,44 @@ u8 p6060bus_device::get_ept() {
 	return m_ept;
 }
 
+void p6060bus_device::update_irq_level() {
+	if (m_requests[irq_priority::LEVEL1] != 0) {
+		m_maincpu->set_irq_level(1);
+	} else if (m_requests[irq_priority::LEVEL2] != 0) {
+		m_maincpu->set_irq_level(2);
+	} else if (m_requests[irq_priority::LEVEL3A] != 0 || m_requests[irq_priority::LEVEL3B] != 0) {
+		m_maincpu->set_irq_level(3);
+	} else {
+		m_maincpu->set_irq_level(4);
+	}
+}
+
+// from periphery
+void p6060bus_device::request_irq(irq_priority::t priority, irq_mask_t mask) {
+	m_requests[priority] |= mask;
+	update_irq_level();
+}
+
+// from CPU
+void p6060bus_device::grant_irq(int level) {
+	irq_priority::t priority;
+	irq_order_t order;
+	irq_mask_t mask;
+	// could do consistency check for level
+	for (unsigned p = irq_priority::FIRST; p != irq_priority::LAST; p++) {
+		priority = static_cast<irq_priority::t>(p);
+		if (m_requests[priority] != 0) break;
+	}
+	if (priority == irq_priority::LAST) {
+		// error
+	}
+	mask = m_requests[priority];
+	for (order = 1; mask != 0; order++, mask >>= 1);
+	// check size
+	device_p6060bus_card_interface* card = m_device_list[irq_slot[order]];
+	card->grant_irq(priority);
+}
+
 // --------
 
 device_p6060bus_card_interface::device_p6060bus_card_interface(const machine_config &mconfig, device_t &device)
@@ -306,71 +353,3 @@ void device_p6060bus_card_interface::interface_pre_start()
 
 	m_p6060bus->add_p6060bus_card(slot, this);
 }
-
-/*
-
-p6060bus:
-
-EXT external bus
-
-prio enum
-  1 L1
-	2 L2
-	3 L3A
-	4 L3B
-
-state
-  select controller
-	from peri: data 8, name 8, type 8
-	to peri: data/cmd 16
-
-## CPU > Peri
-
-reset
-  all controllers
-
-select
-  all controllers in order
-	stop at first
-	save which
-
-## CPU > selected peri:
-# use signal line abstraction?
-
-
-finish
-
-data without ECOT
-
-data with ECOT
-
-command
-
-EC1F
-EC2F
-
-## peri > CPU
-
-store 
-
-## Interrupt
-
-intr_finish
-  COM0 from CPU
-	check queues in order
-	found:
-	   remove from queue
-      grant
-
-intr_request(prio)
-  check CPU level
-	if available, grant
-	otherwise queue (for simplicity)
-
-intr_grant(prio)
-  set CPU level
-  callback card
-
-ECM1,2,3  CPU request irq ???
-
-*/

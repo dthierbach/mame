@@ -4149,6 +4149,8 @@ if BUSES["P6060"] then
 		MAME_DIR .. "src/devices/bus/p6060/p6060bus.h",
 		MAME_DIR .. "src/devices/bus/p6060/goino.cpp",
 		MAME_DIR .. "src/devices/bus/p6060/goino.h",
+		MAME_DIR .. "src/devices/bus/p6060/flodi.cpp",
+		MAME_DIR .. "src/devices/bus/p6060/flodi.h",
 		MAME_DIR .. "src/devices/bus/p6060/gips.cpp",
 		MAME_DIR .. "src/devices/bus/p6060/gips.h",
 	}

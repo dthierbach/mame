@@ -2,7 +2,7 @@
 // copyright-holders:Dirk Thierbach
 /*********************************************************************
 
-	Olivetti P6060 GIPS  IPSO parallel port controller card
+	Olivetti P6060  GIPS  IPSO parallel port controller card
 
 *********************************************************************/
 

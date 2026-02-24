@@ -54,6 +54,8 @@ protected:
 	virtual void device_resolve_objects() override ATTR_COLD;
 	virtual void device_start() override ATTR_COLD;
 
+	void update_irq_level();
+
 	// configuration
 	required_device<p6060bus_device> m_p6060bus;
 };
@@ -109,6 +111,8 @@ public:
   // signal 2: selected card
 	virtual void set_ec2f(int level) override;
 
+	virtual void grant_irq(int level) override;
+
 	// ---- from periphery
 
 	// data/state
@@ -122,6 +126,8 @@ public:
 	// type of interrupt
 	virtual void set_ept(u8 type) override;
 	virtual u8 get_ept() override;
+
+	virtual void request_irq(irq_priority::t priority, irq_mask_t mask) override;
 
 protected:
 	p6060bus_device(const machine_config &mconfig, device_type type, const char *tag, device_t *owner, uint32_t clock);
@@ -141,6 +147,13 @@ protected:
 	u8 m_epn;
 	u8 m_ept;
 	// should ec1f and ec2f be state?
+
+	irq_mask_t m_requests[irq_priority::LAST];
+
+private:
+
+  void update_irq_level();
+
 };
 
 
@@ -161,7 +174,10 @@ public:
 	void set_p6060bus(p6060bus_device *p6060bus, const char *slottag) { m_p6060bus = p6060bus; m_p6060bus_slottag = slottag; }
 	template <typename T> void set_onboard(T &&p6060bus) { m_p6060bus_finder.set_tag(std::forward<T>(p6060bus)); m_p6060bus_slottag = device().tag(); }
 
-protected:
+	void set_irq_mask(irq_mask_t mask) { irq_mask = mask; }
+	void set_dma_mask(irq_mask_t mask) { dma_mask = mask; }
+
+	virtual void grant_irq(irq_priority::t priority) { }
 
 	virtual void set_ecor(int level) { };
 	virtual bool strobe_ecos() { return false; };
@@ -171,6 +187,8 @@ protected:
 	virtual void set_ec1f(int level) { };
 	virtual void set_ec2f(int level) { };
 
+protected:
+
 	device_p6060bus_card_interface(const machine_config &mconfig, device_t &device);
 
 	virtual void interface_validity_check(validity_checker &valid) const override;
@@ -179,6 +197,8 @@ protected:
 	optional_device<p6060bus_device> m_p6060bus_finder;
 	p6060bus_device *m_p6060bus;
 	const char *m_p6060bus_slottag;
+	irq_mask_t irq_mask;
+	dma_mask_t dma_mask;
 
 private:
 

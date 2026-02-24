@@ -13,6 +13,29 @@
 
 #pragma once
 
+namespace irq_priority {
+	enum t {
+		FIRST = 0,
+  	LEVEL1 = FIRST,
+  	LEVEL2,
+  	LEVEL3A,
+  	LEVEL3B,
+  	LAST
+	};
+}
+
+// order of slots for irq, type is index and mask position
+typedef unsigned irq_order_t;
+
+// irq mask, bits in irq order
+typedef unsigned irq_mask_t;
+
+// order of slots for dna, type is index and mask position;
+typedef unsigned dma_order_t;
+
+// dma mask, bits in dma order
+typedef unsigned dma_mask_t;
+
 class p6060bus_interface
 {
 public:
@@ -44,6 +67,8 @@ public:
   // signal 2: selected card
 	virtual void set_ec2f(int level) = 0;
 
+	virtual void grant_irq(int level) = 0;
+
 	// ---- from periphery
 
 	// data/state
@@ -57,6 +82,8 @@ public:
 	// type of interrupt
 	virtual void set_ept(u8 type) = 0;
 	virtual u8 get_ept() = 0;
+
+	virtual void request_irq(irq_priority::t priority, irq_mask_t mask) = 0;
 
 };
 

@@ -56,6 +56,7 @@ void puce_device::device_start()
 
 	// register our state for the debugger
 	state_add(PUCE_LVL,        "LVL",       m_lvl).mask(0x7);
+	state_add(PUCE_IRQ_LVL,    "IRQ_LVL",   m_irq_lvl).mask(0x7);
 	state_add(STATE_GENPC,     "GENPC",     m_pc); // .noshow();
 	state_add(STATE_GENPCBASE, "CURPC",     m_pc); // .noshow();
 	state_add(STATE_GENFLAGS,  "GENFLAGS",  m_di).callexport().formatstr("%9s");
@@ -68,6 +69,7 @@ void puce_device::device_start()
 
 	// setup regtable
 	save_item(m_lvl, "Lvl");
+	// m_irq_lvl will be set from bus
 	save_item(m_di, "DI");
 	for(int r = 0; r < 16; r++) {
 		save_item(RL(r), string_format("L%d", r).c_str());
@@ -90,6 +92,7 @@ void puce_device::device_reset()
 	m_di = 0;
 	// Start with Lvl3 at 0x8000
 	m_lvl = 3;
+	m_irq_lvl = 4;
 	RL(1) = 0x8000;
 	get_vpc();
 }
@@ -254,6 +257,11 @@ void puce_device::execute_run()
 {
 	while (m_icount > 0)
 	{
+		if (m_irq_lvl < m_lvl) {
+			LOG("%s: grant irq irq_lvl=%i lvl=%i pc=%04x\n", machine().describe_context(), m_irq_lvl, m_lvl, m_pc);
+			m_extbus->grant_irq(m_irq_lvl);
+			m_lvl = m_irq_lvl;
+		}
 		get_vpc();
 		// LOG("%s: device_exec lvl=%i pc=%04x\n", machine().describe_context(), m_lvl, m_pc);
 		debugger_instruction_hook(m_pc);
@@ -295,7 +303,7 @@ inline void puce_device::op_sai(u16 j) {
 inline void puce_device::op_amd(u8 s, u8 t) {
   //[%02x] := A%d
   //no DI
-	m_data->write_byte(t, s);
+	m_data->write_byte(t, RA(s));
 }
 
 inline void puce_device::op_mad(u8 s, u8 t) {

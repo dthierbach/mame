@@ -10,12 +10,14 @@
 #include "cards.h"
 
 #include "goino.h"
+#include "flodi.h"
 #include "gips.h"
 
 
 void p6060_cards(device_slot_interface &device)
 {
 	device.option_add("goino", P6060BUS_GOINO);
+	device.option_add("flodi", P6060BUS_FLODI);
 	device.option_add("gips", P6060BUS_GIPS);
 }
 

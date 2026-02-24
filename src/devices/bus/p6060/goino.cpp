@@ -2,7 +2,7 @@
 // copyright-holders:Dirk Thierbach
 /*********************************************************************
 
-  Olivetti P6060 GOINO  Internal hardware controller
+  Olivetti P6060  GOINO  Internal hardware controller
 
 *********************************************************************/
 
