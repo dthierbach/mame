@@ -174,8 +174,8 @@ public:
 	void set_p6060bus(p6060bus_device *p6060bus, const char *slottag) { m_p6060bus = p6060bus; m_p6060bus_slottag = slottag; }
 	template <typename T> void set_onboard(T &&p6060bus) { m_p6060bus_finder.set_tag(std::forward<T>(p6060bus)); m_p6060bus_slottag = device().tag(); }
 
-	void set_irq_mask(irq_mask_t mask) { irq_mask = mask; }
-	void set_dma_mask(irq_mask_t mask) { dma_mask = mask; }
+	void set_irq_mask(irq_mask_t mask) { m_irq_mask = mask; }
+	void set_dma_mask(irq_mask_t mask) { m_dma_mask = mask; }
 
 	virtual void grant_irq(irq_priority::t priority) { }
 
@@ -197,8 +197,8 @@ protected:
 	optional_device<p6060bus_device> m_p6060bus_finder;
 	p6060bus_device *m_p6060bus;
 	const char *m_p6060bus_slottag;
-	irq_mask_t irq_mask;
-	dma_mask_t dma_mask;
+	irq_mask_t m_irq_mask;
+	dma_mask_t m_dma_mask;
 
 private:
 

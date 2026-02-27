@@ -194,8 +194,11 @@ void p6060bus_goino_device::lights_shiftin(int value) {
 }
 
 bool p6060bus_goino_device::strobe_ecos() {
-	LOG("%s: ecos\n", machine().describe_context());
-	return true;
+	if ((m_p6060bus->get_ecd() & 0xff) == 0x00) {
+		LOG("%s: ecos\n", machine().describe_context());
+		return true;
+	}
+	return false;
 }
 
 void p6060bus_goino_device::strobe_ecoc() {

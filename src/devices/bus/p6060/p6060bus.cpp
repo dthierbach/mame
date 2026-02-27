@@ -64,7 +64,7 @@ void p6060bus_slot_device::device_start()
 DEFINE_DEVICE_TYPE(P6060BUS, p6060bus_device, "p6060bus", "P6060 Card Bus")
 
 // skip 11 as second FLODI slot
-static const unsigned irq_slot[] = { 1, 13, 12, 10, 9, 8, 2, 3, 4, 5, 6 };
+static const unsigned irq_slot[] = { 1, 13, 12, 10, 9, 8, 2, 3, 4, 5, 6, 0 };
 
 // dma_slot[]
 
@@ -105,6 +105,10 @@ void p6060bus_device::device_start()
 void p6060bus_device::device_reset()
 {
 	m_select = -1;
+	m_requests[irq_priority::LEVEL1] = 0;
+	m_requests[irq_priority::LEVEL2] = 0;
+	m_requests[irq_priority::LEVEL3A] = 0;
+	m_requests[irq_priority::LEVEL3B] = 0;
 }
 
 device_p6060bus_card_interface *p6060bus_device::get_p6060bus_card(int slot)
@@ -123,8 +127,16 @@ device_p6060bus_card_interface *p6060bus_device::get_p6060bus_card(int slot)
 void p6060bus_device::add_p6060bus_card(int slot, device_p6060bus_card_interface *card)
 {
 	m_device_list[slot] = card;
-	irq_mask_t irq_mask = 0; // TODO        
+	irq_mask_t irq_mask = 0;
 	dma_mask_t dma_mask = 0;
+	// one time search, can be expensive
+	for (unsigned p = 0; irq_slot[p] != 0; p++) {
+		if (irq_slot[p] == slot) {
+			irq_mask = 1 << p;
+			break;
+		}
+	}
+	LOG("%s: attach slot %d irq=%04x dma=%04x\n", machine().describe_context(), slot, irq_mask, dma_mask);
 	card->set_irq_mask(irq_mask);
 	card->set_dma_mask(dma_mask);
 }
@@ -303,12 +315,21 @@ void p6060bus_device::grant_irq(int level) {
 		if (m_requests[priority] != 0) break;
 	}
 	if (priority == irq_priority::LAST) {
-		// error
+		osd_printf_error("Granting IRQ level %d but request found\n", level);
+		return;
 	}
 	mask = m_requests[priority];
-	for (order = 1; mask != 0; order++, mask >>= 1);
-	// check size
-	device_p6060bus_card_interface* card = m_device_list[irq_slot[order]];
+	LOG("%s: grant mask=%04x\n", machine().describe_context(), mask);
+	mask >>= 1;
+	for (order = 0; mask != 0; order++, mask >>= 1);
+	// check index
+	unsigned slot = irq_slot[order];
+	LOG("%s: grant order=%d slot=%d\n", machine().describe_context(), order, slot);
+	m_requests[priority] &= ~(1 << order);
+	update_irq_level();
+	// check index
+	device_p6060bus_card_interface* card = m_device_list[slot];
+	// check card
 	card->grant_irq(priority);
 }
 

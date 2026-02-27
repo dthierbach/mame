@@ -23,8 +23,8 @@
 
 #define SETM(x,y) (x) = ((x) & 0xf0) | (y)
 #define SETP(x,y) (x) = ((x) & 0x0f) | (y)
-#define GETM(x) ((x) & 0xf0)
-#define GETP(x) ((x) & 0x0f)
+#define GETM(x) ((x) & 0x0f)
+#define GETP(x) ((x) & 0xf0)
 
 #define DIZERO(x) m_di = m_di & 0xfd | ((x==0)?0x2:0)
 
@@ -259,8 +259,9 @@ void puce_device::execute_run()
 	{
 		if (m_irq_lvl < m_lvl) {
 			LOG("%s: grant irq irq_lvl=%i lvl=%i pc=%04x\n", machine().describe_context(), m_irq_lvl, m_lvl, m_pc);
-			m_extbus->grant_irq(m_irq_lvl);
 			m_lvl = m_irq_lvl;
+			// grant recalcs m_irq_lvl
+			m_extbus->grant_irq(m_irq_lvl);
 		}
 		get_vpc();
 		// LOG("%s: device_exec lvl=%i pc=%04x\n", machine().describe_context(), m_lvl, m_pc);
